@@ -27,33 +27,50 @@ if(typeof title !== 'string') throw 'Title should be a string'
 if(typeof content !== 'string') throw 'Content should be a string'
 if(typeof name !== 'string') throw 'Location Name should be a string'
 
+userId = userId.trim()
+title = title.trim()
+content = content.trim()
+name = name.trim()
+
+if(userId.length === 0) throw 'userId should not be empty'
+if(title.length === 0) throw 'title should not be empty'
+if(content.length === 0) throw 'content should not be empty'
+if(name.length === 0) throw 'name should not be empty'
+
 if (!Array.isArray(media)) throw 'media should be an array'
 
 for (let i of media)
 {
-    if(typeof i !== 'string') throw 'media should only contain strings'
-    if (!/^http:\/\/localhost:5173\/media\/[a-zA-Z0-9_-]+\.(jpeg|jpg|png|gif|webp|mp4)$/i.test(i)) throw 'Invalid image/video URL'
+
+if(typeof i !== 'string') throw 'media should only contain strings'
+i = i.trim()
+if(i.length === 0) throw 'media cannot contain empty strings'
+if (!/^http:\/\/localhost:5173\/media\/[a-zA-Z0-9_-]+\.(jpeg|jpg|png|gif|webp|mp4)$/i.test(i)) throw 'Invalid image/video URL'
 
 }
 
 if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) throw 'Invalid latitude'
 if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) throw 'Invalid longitude'
 
-if (!(createdAt instanceof Date) || isNaN(createdAt.getTime())) throw 'Invalid createdAt'
-
-const updatedAt = createdAt
-
 if(!Array.isArray(category)) throw 'category has to be an array'
 
 for (let j of category)
 {
     if (typeof j !== 'string') throw 'category should only contain strings'
+    j = j.trim()
+    if(j.length === 0) throw 'category cannot contain empty strings'
     if(!["Adventure", "Cultural Experiences", "Leisure"].includes(j)) throw 'Invalid category'
 }
 
+const location = {lat, lng, name}
+
 if (!ObjectId.isValid(userId)) throw 'Invalid userId';
 
-const location = {lat, lng, name}
+if (!(createdAt instanceof Date) || isNaN(createdAt.getTime())) throw 'Invalid createdAt'
+
+createdAt = createdAt.toISOString()
+const updatedAt = createdAt
+
 const likes = 0
 const commentsCount = 0
 
@@ -88,6 +105,7 @@ const post = await posts()
 let postList = await post.find({}).toArray();
     
 if (!postList) throw 'Could not get all posts';
+if (postList.length === 0) throw 'No posts found'
 
 for (let i = 0; i<postList.length; i++)
 {
@@ -111,7 +129,28 @@ export const getPost = async (id) => {
 try
 {
 
+if(!id) throw 'No Post ID given'
+if(typeof id !== 'string') throw 'Post ID provided should be a string'
+id = id.trim()
+if(id.length === 0) throw 'Post ID cannot be empty'
+if (!ObjectId.isValid(id)) throw 'Invalid Post ID';
+
+const cacheKey = 'post:'+id
+const cachedPost = await client.get(cacheKey)
+if(cachedPost) return JSON.parse(cachedPost)
+
+let idno = ObjectId.createFromHexString(id)
+
 const post = await posts()
+
+const retrievedPost = await post.findOne({_id: idno});
+if (!retrievedPost) {
+throw 'Post could not be found'
+}
+
+await client.set(cacheKey, JSON.stringify(retrievedPost))
+
+return retrievedPost
 
 }
 catch(e)
@@ -126,7 +165,77 @@ export const updatePost = async (id, title, content, media, category, lat, lng, 
 try
 {
 
+if(!id) throw 'No Post ID given'
+if(typeof id !== 'string') throw 'Post ID provided should be a string'
+id = id.trim()
+if(id.length === 0) throw 'Post ID cannot be empty'
+if (!ObjectId.isValid(id)) throw 'Invalid Post ID';
+let idno = ObjectId.createFromHexString(id)
+
+if (!title) throw 'title not provided';
+if (!content) throw 'content not provided';
+if (!media) throw 'media not provided';
+if (!category) throw 'category not provided';
+if (!lat) throw 'lat not provided';
+if (!lng) throw 'lng not provided';
+if (!name) throw 'name not provided';
+
+if(typeof title !== 'string') throw 'Title should be a string'
+if(typeof content !== 'string') throw 'Content should be a string'
+if(typeof name !== 'string') throw 'Location Name should be a string'
+
+title = title.trim()
+content = content.trim()
+name = name.trim()
+
+if(title.length === 0) throw 'title should not be empty'
+if(content.length === 0) throw 'content should not be empty'
+if(name.length === 0) throw 'name should not be empty'
+
+if (!Array.isArray(media)) throw 'media should be an array'
+
+for (let i of media)
+{
+
+if(typeof i !== 'string') throw 'media should only contain strings'
+i = i.trim()
+if(i.length === 0) throw 'media cannot contain empty strings'
+if (!/^http:\/\/localhost:5173\/media\/[a-zA-Z0-9_-]+\.(jpeg|jpg|png|gif|webp|mp4)$/i.test(i)) throw 'Invalid image/video URL'
+
+}
+
+if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) throw 'Invalid latitude'
+if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) throw 'Invalid longitude'
+
+if(!Array.isArray(category)) throw 'category has to be an array'
+
+for (let j of category)
+{
+    if (typeof j !== 'string') throw 'category should only contain strings'
+    j = j.trim()
+    if(j.length === 0) throw 'category cannot contain empty strings'
+    if(!["Adventure", "Cultural Experiences", "Leisure"].includes(j)) throw 'Invalid category'
+}
+
+const location = {lat, lng, name}
+
+const updatedAt = new Date().toISOString();
+
+let updatePost = {title, content, media, category, location, updatedAt}
+
 const post = await posts()
+
+const updatedPost = post.findOneAndUpdate({_id: idno},
+    {$set: updatePost},
+    {returnDocument: 'after'})
+
+if(!updatedPost) throw 'Could not update post'
+
+const cacheKey = 'post:'+id
+await client.flushDb()
+await client.set(cacheKey, JSON.stringify(updatedPost));
+
+return updatedPost
 
 }
 catch(e)
@@ -142,6 +251,22 @@ try
 {
 
 const post = await posts()
+if(!id) throw 'No Post ID given'
+if(typeof id !== 'string') throw 'Post ID provided should be a string'
+id = id.trim()
+if(id.length === 0) throw 'Post ID cannot be empty'
+if (!ObjectId.isValid(id)) throw 'Invalid Post ID';
+
+let idno = ObjectId.createFromHexString(id)
+
+const deletedPost = await post.findOneAndDelete({_id: idno});
+if (!deletedPost) {
+throw 'Post could not be deleted'
+}
+
+await client.flushDb()
+
+return deletedPost
 
 }
 catch(e)
