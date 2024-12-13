@@ -2,6 +2,9 @@ import posts from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import redis from 'redis'
 
+const client = redis.createClient({url: 'redis://localhost:6379'})
+client.connect().catch(err => console.error('Redis Client Error', err))
+
 export const createPost = async (userId, title, content, media, category, lat, lng, name, createdAt) => {
 
 try
@@ -60,6 +63,10 @@ let insertPost = await post.insertOne(newPost);
 
 if (!insertPost.acknowledged || !insertPost.insertedId) throw 'Post could not be entered into the database'
 
+const cacheKey = 'post:'+insertPost.insertedId.toString();
+await client.del('posts')
+await client.set(cacheKey, JSON.stringify(newPost));
+
 }
 catch(e)
 {
@@ -73,7 +80,23 @@ export const getAllPosts = async () => {
 try
 {
 
+const cachedPosts = await client.get('posts')
+if(cachedPosts) return JSON.parse(cachedPosts)
+
 const post = await posts()
+
+let postList = await post.find({}).toArray();
+    
+if (!postList) throw 'Could not get all posts';
+
+for (let i = 0; i<postList.length; i++)
+{
+postList[i].id = postList[i]._id.toString()
+}
+
+await client.setEx('posts', 3600, JSON.stringify(postList));
+
+return postList
 
 }
 catch(e)
