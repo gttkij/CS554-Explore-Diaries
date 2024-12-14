@@ -1,9 +1,9 @@
-// server.js
 import express from "express";
 import session from "express-session";
 import cors from "cors";
 import dotenv from "dotenv";
 import configRoutes from "./routes/index.js";
+import { dbConnection, closeConnection } from "./config/mongoConnections.js";
 
 dotenv.config();
 
@@ -36,4 +36,9 @@ configRoutes(app);
 // IF FRONTEND ENDS UP RUNNING ON 3000, CHANGE THIS TO 3001:-
 app.listen(3000, () => {
   console.log("Backend is running on http://localhost:3000");
+});
+
+process.on("SIGINT", async () => {
+  await closeConnection();
+  process.exit(0); // Gracefully shut down the server
 });

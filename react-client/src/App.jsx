@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import "./index.css";
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/HomePage.jsx";
 import { SignUp } from "./pages/SignUp";
 import { AuthProvider } from "./context/AuthContext";
 import { SignIn } from "./pages/SignIn";
