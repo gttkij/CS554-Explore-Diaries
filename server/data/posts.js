@@ -1,4 +1,4 @@
-import posts from '../config/mongoCollections.js';
+import { posts } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import redis from 'redis'
 
