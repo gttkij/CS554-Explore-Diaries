@@ -1,7 +1,7 @@
 import { dbConnection, closeConnection } from '../config/mongoConnections.js';
 import { createPost } from '../data/posts.js';
 import dotenv from 'dotenv';
-import { ObjectId } from 'mongodb';  // Import ObjectId
+import { ObjectId } from 'mongodb';
 
 dotenv.config();
 

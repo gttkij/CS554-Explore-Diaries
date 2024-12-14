@@ -1,55 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './HomePage.css';
 
 const HomePage = () => {
-  const posts = [
-    {
-      id: 1,
-      title: "Amazing trip to the beach",
-      description: "The perfect vacation at the sunny beach with family and friends.",
-      image: "https://via.placeholder.com/150",
-      location: "California",
-      category: "Leisure"
-    },
-    {
-      id: 2,
-      title: "Hiking Adventure",
-      description: "Exploring the great outdoors in the mountains with stunning views.",
-      image: "https://via.placeholder.com/150",
-      location: "Rocky Mountains",
-      category: "Adventure"
-    },
-    {
-      id: 3,
-      title: "City Escape",
-      description: "A weekend getaway to explore the bustling city streets.",
-      image: "https://via.placeholder.com/150",
-      location: "New York",
-      category: "Cultural Experiences"
-    },
-    // Add more posts as needed
-  ];
-
-  const categories = ["All", "Adventure", "Cultural Experiences", "Leisure"];
-
+  const [posts, setPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedLocation, setSelectedLocation] = useState('');
+  const categories = ["All", "Adventure", "Cultural Experiences", "Leisure"];
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/posts');
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setPosts(data);
+        } else {
+          console.error('Expected an array of posts');
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  // Filter posts based on search query and selected category
   const filteredPosts = posts.filter(post => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' || post.category.includes(selectedCategory);
     const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          post.location.name.toLowerCase().includes(searchQuery.toLowerCase()) || // Now checking the 'name' property of location
                           post.category.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    return matchesSearch && matchesCategory;
   });
 
   return (
     <div className="home-page">
       <h1>Explore Diaries</h1>
       
-      {/* Search Bar with Button */}
+      {/* Search Bar */}
       <div className="search-container">
         <input
           type="text"
@@ -62,7 +52,7 @@ const HomePage = () => {
         </button>
       </div>
 
-      {/* Categories Display */}
+      {/* Category Filter */}
       <div className="categories">
         {categories.map((category) => (
           <button
@@ -77,18 +67,24 @@ const HomePage = () => {
 
       {/* Post List */}
       <div className="post-list">
-        {filteredPosts.map((post) => (
-          <div key={post.id} className="post-card">
-            <img src={post.image} alt={post.title} />
-            <div className="post-info">
-              <h2>{post.title}</h2>
-              <p>{post.description}</p>
-              <p><strong>Location:</strong> {post.location}</p>
-              <p><strong>Category:</strong> {post.category}</p>
-              <button>Read more</button>
+        {filteredPosts.length > 0 ? (
+          filteredPosts.map((post) => (
+            <div key={post.id} className="post-card">
+              <img src={post.image} alt={post.title} />
+              <div className="post-info">
+                <h2>{post.title}</h2>
+                <p>{post.description}</p>
+                <p><strong>Location Name:</strong> {post.location.name}</p>
+                <p><strong>Latitude:</strong> {post.location.lat}</p>
+                <p><strong>Longitude:</strong> {post.location.lng}</p>
+                <p><strong>Category:</strong> {post.category.join(', ')}</p>
+                <button>Read more</button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No posts found.</p>
+        )}
       </div>
     </div>
   );
