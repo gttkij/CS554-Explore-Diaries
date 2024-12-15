@@ -49,6 +49,16 @@ async function doSignOut() {
   await signOut(auth);
 }
 
+async function doChangeName(name) {
+  let auth = getAuth();
+  await updateProfile(auth.currentUser, { displayName: name });
+}
+
+async function getUid() {
+  let auth = getAuth();
+  return auth.currentUser.uid;
+}
+
 export {
   doCreateUserWithEmailAndPassword,
   doSocialSignIn,
@@ -56,4 +66,6 @@ export {
   doPasswordReset,
   doSignOut,
   doChangePassword,
+  doChangeName,
+  getUid,
 };

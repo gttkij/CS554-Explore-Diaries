@@ -3,15 +3,18 @@ import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../context/AuthContext";
 import { doSignInWithEmailAndPassword } from "../firebase/FirebaseFunctions";
 import "./SignIn.css";
+import { useNavigate } from "react-router-dom";
 
 export function SignIn() {
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     let { email, password } = e.target.elements;
     try {
       await doSignInWithEmailAndPassword(email.value, password.value);
+      navigate("/");
     } catch (error) {
       alert(error);
     }

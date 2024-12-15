@@ -11,6 +11,10 @@
   padding: 1.5rem 1rem;
 }
 
+a {
+  cursor: pointer;
+}
+
 .sidebar-content {
   display: flex;
   flex-direction: column;
@@ -57,9 +61,9 @@
   transition: background-color 0.2s ease-in-out;
 }
 
-.menu-item:hover {
+/* .menu-item:hover {
   background-color: #e5e7eb;
-}
+} */
 
 .icon-container {
   display: flex;

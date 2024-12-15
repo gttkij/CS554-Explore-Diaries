@@ -1,12 +1,12 @@
 import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 
-export const addUser = async (name, email) => {
-  if (!name || !email) {
-    throw "Must provide valid user name or email";
+export const addUser = async (name, email, fireId) => {
+  if (!name || !email || !fireId) {
+    throw "Must provide valid user name or email or fireId";
   }
   const usersCollection = await users();
-  const userExsit = await usersCollection.findOne({ email: email });
+  const userExsit = await usersCollection.findOne({ fireId: fireId });
 
   if (userExsit) {
     throw "User already exists.";
@@ -14,6 +14,7 @@ export const addUser = async (name, email) => {
 
   const newUser = {
     _id: new ObjectId(),
+    fireId: fireId,
     name: name,
     email: email,
     posts: [],
@@ -25,4 +26,25 @@ export const addUser = async (name, email) => {
   }
 
   return newUser;
+};
+
+export const editUser = async (name, fireId) => {
+  name = name.trim();
+  if (!name || name.length === 0) {
+    throw "Please provide valid name";
+  }
+
+  const usersCollection = await users();
+
+  const updatedUser = await usersCollection.findOneAndUpdate(
+    { fireId: fireId },
+    { $set: { name: name } },
+    { returnDocument: "after" }
+  );
+
+  console.log(updatedUser);
+
+  if (!updatedUser) throw "Could not update user";
+
+  return updatedUser;
 };

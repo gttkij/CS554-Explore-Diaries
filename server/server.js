@@ -1,5 +1,5 @@
 import express from "express";
-import session from "express-session";
+// import session from "express-session";
 import cors from "cors";
 import dotenv from "dotenv";
 import configRoutes from "./routes/index.js";
@@ -9,27 +9,28 @@ dotenv.config();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "PATCH", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-); //MIGHT CHANGE
-app.options("*", cors());
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173",
+//     methods: ["GET", "PATCH", "POST", "PUT", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true,
+//   })
+// ); //MIGHT CHANGE
+
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    name: "AuthenticationState",
-    secret: "ssshh secret",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+// app.use(
+//   session({
+//     name: "AuthenticationState",
+//     secret: "ssshh secret",
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
 
 configRoutes(app);
 

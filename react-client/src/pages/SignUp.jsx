@@ -1,15 +1,19 @@
 import { useContext } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../context/AuthContext";
-
-import { doCreateUserWithEmailAndPassword } from "../firebase/FirebaseFunctions";
+import {
+  doCreateUserWithEmailAndPassword,
+  getUid,
+} from "../firebase/FirebaseFunctions";
 import "./SignIn.css";
-
-// import {doCreateUserWithEmailAndPassword}
 import { useState } from "react";
+import axios, { Axios } from "axios";
+import { useNavigate } from "react-router-dom";
+
 export function SignUp() {
   const { currentUser } = useContext(AuthContext);
   const [pwError, setPwError] = useState(false);
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -30,20 +34,24 @@ export function SignUp() {
       const postUrl = "http://localhost:3000/api/auth/signup";
       const username = name.value;
       const userEmail = email.value;
+      const fireId = await getUid();
 
-      // console.log(userInfo);
-      const response = await fetch(postUrl, {
-        method: "POST",
-        // credentials: "include",
-        headers: {
-          "Content-Type": "appilication/json",
-        },
-        body: JSON.stringify({ name: username, email: userEmail }),
-      });
+      const response = await axios.post(
+        postUrl,
+        { name: username, email: userEmail, fireId: fireId },
+        {
+          headers: {
+            accept: "application/json",
+            "Accept-Language": "en-US,en;q=0.8",
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      console.log(response);
+      // console.log(response);
 
       alert("New User Created");
+      navigate("/login");
     } catch (error) {
       alert(error);
     }
@@ -52,6 +60,7 @@ export function SignUp() {
   return (
     <section>
       <div className="card">
+        <p className="text-large">Create your account</p>
         <form onSubmit={handleSignup}>
           <div>
             <label>Name:</label>
