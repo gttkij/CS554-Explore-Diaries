@@ -10,9 +10,10 @@ import { useNavigate } from "react-router-dom";
 export function UserPage() {
   const { currentUser } = useContext(AuthContext);
   const [posts, setPosts] = useState([]);
-  const fireId = currentUser.fireId;
+  const fireId = currentUser.uid;
   const navigate = useNavigate();
 
+  // Display user's posts here
   // useEffect(() => {
   //   const fetchPosts = async () => {
   //     try {
@@ -42,6 +43,18 @@ export function UserPage() {
       </div>
 
       <div className="post-list">
+        {/* {posts.length > 0 ? (
+          posts.map((post) => (
+            <Post
+              title={post.title}
+              description={post.description}
+              location={post.location}
+              category={post.categpry}
+            />
+          ))
+        ) : (
+          <p>User does not have any posts</p>
+        )} */}
         <Post
           title="test"
           description="test"
