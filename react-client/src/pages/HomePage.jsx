@@ -10,35 +10,46 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/posts');
+        const response = await fetch(`http://localhost:9200/posts/_search`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: {
+              match_all: {}  // This fetches all posts
+            },
+          }),
+        });
+  
         const data = await response.json();
-        if (Array.isArray(data)) {
-          setPosts(data);
-        } else {
-          console.error('Expected an array of posts');
-        }
+        const hits = data.hits.hits.map(hit => hit._source); // Extract the posts
+        setPosts(hits);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching posts from Elasticsearch:', error);
       }
     };
-
+  
     fetchPosts();
-  }, []);
+  }, [selectedCategory]);  // Use only selectedCategory here, since no search is being used
 
   // Filter posts based on search query and selected category
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'All' || post.category.includes(selectedCategory);
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          post.location.name.toLowerCase().includes(searchQuery.toLowerCase()) || // Now checking the 'name' property of location
-                          post.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = 
+      (post.title && post.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (post.description && post.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (post.location && post.location.name && post.location.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (post.category && post.category.some(cat => cat.toLowerCase().includes(searchQuery.toLowerCase())));
+
+
     return matchesSearch && matchesCategory;
   });
 
   return (
     <div className="home-page">
       <h1>Explore Diaries</h1>
-      
+
       {/* Search Bar */}
       <div className="search-container">
         <input
@@ -70,13 +81,13 @@ const HomePage = () => {
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <div key={post.id} className="post-card">
-              <img src={post.image} alt={post.title} />
+              <img src={post.media && post.media[0]} alt={post.title} style={{ display: post.media && post.media.length > 0 ? 'block' : 'none' }}/>
               <div className="post-info">
                 <h2>{post.title}</h2>
-                <p>{post.description}</p>
-                <p><strong>Location Name:</strong> {post.location.name}</p>
-                <p><strong>Latitude:</strong> {post.location.lat}</p>
-                <p><strong>Longitude:</strong> {post.location.lng}</p>
+                <p>{post.content}</p>
+                <p><strong>Location Name:</strong> {post.name}</p>
+                <p><strong>Latitude:</strong> {post.lat}</p>
+                <p><strong>Longitude:</strong> {post.lng}</p>
                 <p><strong>Category:</strong> {post.category.join(', ')}</p>
                 <button>Read more</button>
               </div>

@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import configRoutes from "./routes/index.js";
 import { dbConnection, closeConnection } from "./config/mongoConnections.js";
+import { Client } from '@elastic/elasticsearch';
 
 dotenv.config();
 
@@ -49,6 +50,35 @@ app.get('/api/posts', async (req, res) => {
     res.json(posts);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch posts from database' });
+  }
+});
+
+//ElasticSearch
+
+const eSClient = new Client({
+  node: 'http://localhost:9200'
+});
+
+app.get('/api/search', async (req, res) => {
+  try {
+    const { query } = req.query;
+    const result = await eSClient.search({
+      index: 'posts',
+      body: {
+        query: {
+          multi_match: {
+            query,
+            fields: ['title', 'content', 'category', 'location'],
+          },
+        },
+      },
+    });
+
+    const posts = result.body.hits.hits.map(hit => hit._source);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error searching posts:", error);
+    res.status(500).json({ error: "Failed to search posts" });
   }
 });
 
