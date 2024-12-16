@@ -57,3 +57,23 @@ body {
 .auth-link:hover {
   color: #ff5733;
 }
+
+/* ErrorNotFound Component Styles */
+.error-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.error-not-found h1 {
+  font-size: 48px;
+  color: #333;
+}
+
+.error-not-found p {
+  font-size: 20px;
+  color: #666;
+}
