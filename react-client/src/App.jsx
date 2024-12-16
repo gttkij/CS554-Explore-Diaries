@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { SignIn } from "./pages/SignIn";
 import { UserPage } from "./pages/UserPage";
 // import { SideBar } from "./components/SideBar";
+import { ErrorNotFound } from "./pages/ErrorNotFound";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/userpage" element={<UserPage />} />
+          <Route path="/errornotfound" element={<ErrorNotFound />} />
           {/* Add Login and Sign Up Routes here if needed */}
         </Routes>
       </Router>
