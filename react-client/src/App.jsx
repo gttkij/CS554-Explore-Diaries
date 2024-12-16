@@ -7,7 +7,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { SignIn } from "./pages/SignIn";
 import { UserPage } from "./pages/UserPage";
 // import { SideBar } from "./components/SideBar";
-import { ErrorNotFound } from "./pages/ErrorNotFound";
+import ErrorNotFound from "./pages/ErrorNotFound";
 
 function App() {
   return (

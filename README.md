@@ -18,3 +18,7 @@ Access http://localhost:9200 through the browser to check if the connection is o
 
 To close it:
 docker-compose down
+
+# Run
+npm run seed
+npm start
