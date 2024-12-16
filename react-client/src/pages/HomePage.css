@@ -77,7 +77,7 @@ h1 {
 }
 
 /* Post List Styling */
-.post-list {
+.post-list1 {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;

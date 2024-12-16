@@ -32,6 +32,26 @@ app.use(
   })
 );
 
+let db;
+const connectToDb = async () => {
+  try {
+    db = await dbConnection();
+  } catch (error) {
+    console.error('Error establishing MongoDB connection:', error);
+  }
+};
+connectToDb();
+// API routes
+app.get('/api/posts', async (req, res) => {
+  try {
+    const postsCollection = db.collection('posts');
+    const posts = await postsCollection.find({}).toArray();
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch posts from database' });
+  }
+});
+
 configRoutes(app);
 
 // IF FRONTEND ENDS UP RUNNING ON 3000, CHANGE THIS TO 3001:-

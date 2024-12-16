@@ -66,7 +66,7 @@ const HomePage = () => {
       </div>
 
       {/* Post List */}
-      <div className="post-list">
+      <div className="post-list1">
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <div key={post.id} className="post-card">
