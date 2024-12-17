@@ -49,17 +49,23 @@ export const editUser = async (name, fireId) => {
   return updatedUser;
 };
 
-export const getPostsByUser = async (fireId) => {
+export const getPostsByUser = async (userId) => {
   const postsCollection = await posts();
+  const usersCollection = await users();
 
-  const postsByUser = await postsCollection.find({ userId: fireId });
+  const userData = await usersCollection.findOne({
+    fireId: String(userId),
+  });
+  if (!userData) throw "User not found";
+  // console.log(userData);
+
+  const postsByUser = await postsCollection
+    .find({ userId: userData.fireId })
+    .toArray();
+
+  if (!postsByUser) throw "Posts n";
+
   if (!postsByUser || postsByUser.length === 0) throw "Cannot find posts";
-
-  await client.setEx(
-    `postsByUser: ${fireId}`,
-    3600,
-    JSON.stringify(postsByUser)
-  );
 
   return postsByUser;
 };

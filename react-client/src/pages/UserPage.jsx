@@ -11,32 +11,49 @@ import { AddPost } from "../components/AddPost";
 export function UserPage() {
   const { currentUser } = useContext(AuthContext);
   const [posts, setPosts] = useState([]);
-  const fireId = currentUser.uid;
+
   const navigate = useNavigate();
+  console.log(posts);
 
   // Display user's posts here
-  // useEffect(() => {
-  //   const fetchPosts = async () => {
-  //     try {
-  //       const response = await axios.get("http://localhost:3000/api/posts", {
-  //         params: {
-  //           fireId: fireId,
-  //         },
-  //       });
-  //       const data = await response.json();
-  //       if (Array.isArray(data)) {
-  //         setPosts(data);
-  //       } else {
-  //         console.error("Expected an array of posts");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching posts:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    if (currentUser) {
+      const fetchPosts = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/api/auth/userId`,
+            {
+              params: {
+                fireId: fireId,
+              },
+            }
+          );
+          const data = response.data;
 
-  //   fetchPosts();
-  // }, []);
+          if (Array.isArray(data)) {
+            setPosts(data);
+          } else {
+            console.error("Expected an array of posts");
+          }
+        } catch (error) {
+          console.error("Error fetching posts:", error);
+        }
+      };
 
+      fetchPosts();
+    }
+  }, [currentUser]);
+
+  if (!currentUser) {
+    return (
+      <div className="login-container">
+        <h2>You are not logged in</h2>
+        <a href="/login">Log in</a>
+        <a href="signup">Sign up</a>
+      </div>
+    );
+  }
+  const fireId = currentUser.uid;
   return (
     <div>
       <div>
@@ -47,30 +64,20 @@ export function UserPage() {
       </div>
 
       <div className="post-list">
-        {/* {posts.length > 0 ? (
+        {posts.length > 0 ? (
           posts.map((post) => (
             <Post
               title={post.title}
-              description={post.description}
+              content={post.content}
               location={post.location}
-              category={post.categpry}
+              category={post.category}
+              id={post._id}
+              key={post._id}
             />
           ))
         ) : (
           <p>User does not have any posts</p>
-        )} */}
-        <Post
-          title="test"
-          description="test"
-          location="location"
-          category="test"
-        />
-        <Post
-          title="test"
-          description="test"
-          location="location"
-          category="test"
-        />
+        )}
       </div>
     </div>
   );
