@@ -1,215 +1,277 @@
-import { posts, users } from "../config/mongoCollections.js";
-import { ObjectId } from "mongodb";
-import redis from "redis";
-import validation from "../validation.js";
+import { posts } from '../config/mongoCollections.js';
+import { ObjectId } from 'mongodb';
+import redis from 'redis'
 
-const client = redis.createClient({ url: "redis://localhost:6379" });
-client.connect().catch((err) => console.error("Redis Client Error", err));
+const client = redis.createClient({url: 'redis://localhost:6379'})
+client.connect().catch(err => console.error('Redis Client Error', err))
 
-export const createPost = async (
-  userId,
-  userName,
-  title,
-  content,
-  media,
-  category,
-  location
-) => {
-  try {
-    const postCollection = await posts();
-    const userCollection = await users();
+export const createPost = async (userId, title, content, media, category, lat, lng, name, createdAt) => {
 
-    userId = validation.checkId(userId);
-    userName = validation.checkString(userName, "User Name");
-    title = validation.checkString(title, "Title", { min: 2, max: 100 });
-    content = validation.checkString(content, "Content", { min: 10, max: 1000 });
-    location = validation.checkString(location, "Location", { min: 2, max: 100 });
-    media = validation.checkArray(media, "Media");
-    category = validation.checkString(category, "Category");
+try
+{
 
-    media = validation.checkMediaPath(media);
+const post = await posts()
 
-    const likes = 0;
-    const commentList = [];
-    
-    const postDate = new Date().toISOString();
+if (!userId) throw 'userId not provided';
+if (!title) throw 'title not provided';
+if (!content) throw 'content not provided';
+if (!media) throw 'media not provided';
+if (!category) throw 'category not provided';
+if (!lat) throw 'lat not provided';
+if (!lng) throw 'lng not provided';
+if (!name) throw 'name not provided';
+if (!createdAt) throw 'createdAt not provided';
 
-    const newPost = {
-      userId,
-      userName,
-      title,
-      content,
-      media,
-      category,
-      location,
-      postDate,
-      likes,
-      commentList,
-    };
+if(typeof userId !== 'string') throw 'userId should be a string'
+if(typeof title !== 'string') throw 'Title should be a string'
+if(typeof content !== 'string') throw 'Content should be a string'
+if(typeof name !== 'string') throw 'Location Name should be a string'
 
-    let insertPost = await postCollection.insertOne(newPost);
+userId = userId.trim()
+title = title.trim()
+content = content.trim()
+name = name.trim()
 
-    if (!insertPost.acknowledged || !insertPost.insertedId)
-      throw "Post could not be entered into the database";
+if(userId.length === 0) throw 'userId should not be empty'
+if(title.length === 0) throw 'title should not be empty'
+if(content.length === 0) throw 'content should not be empty'
+if(name.length === 0) throw 'name should not be empty'
 
-    await userCollection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $push: { posts: insertPost.insertedId } }
-    );
+if (!Array.isArray(media)) throw 'media should be an array'
 
-    const cacheKey = "post:" + insertPost.insertedId.toString();
-    await client.del("posts");
-    await client.set(cacheKey, JSON.stringify(newPost));
+for (let i of media)
+{
 
-    return {
-      ...newPost,
-      _id: insertPost.insertedId
-    };
-  } catch (e) {
-    throw e;
-  }
-};
+if(typeof i !== 'string') throw 'media should only contain strings'
+i = i.trim()
+if(i.length === 0) throw 'media cannot contain empty strings'
+if (!/^http:\/\/localhost:5173\/media\/[a-zA-Z0-9_-]+\.(jpeg|jpg|png|gif|webp|mp4)$/i.test(i)) throw 'Invalid image/video URL'
 
+}
+
+if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) throw 'Invalid latitude'
+if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) throw 'Invalid longitude'
+
+if(!Array.isArray(category)) throw 'category has to be an array'
+
+for (let j of category)
+{
+    if (typeof j !== 'string') throw 'category should only contain strings'
+    j = j.trim()
+    if(j.length === 0) throw 'category cannot contain empty strings'
+    if(!["Adventure", "Cultural Experiences", "Leisure"].includes(j)) throw 'Invalid category'
+}
+
+const location = {lat, lng, name}
+
+if (!ObjectId.isValid(userId)) throw 'Invalid userId';
+
+if (!(createdAt instanceof Date) || isNaN(createdAt.getTime())) throw 'Invalid createdAt'
+
+createdAt = createdAt.toISOString()
+const updatedAt = createdAt
+
+const likes = 0
+const commentsCount = 0
+
+const newPost = {userId, title, content, media, category, location, likes, commentsCount, createdAt, updatedAt}
+
+let insertPost = await post.insertOne(newPost);
+
+if (!insertPost.acknowledged || !insertPost.insertedId) throw 'Post could not be entered into the database'
+
+const cacheKey = 'post:'+insertPost.insertedId.toString();
+await client.del('posts')
+await client.set(cacheKey, JSON.stringify(newPost));
+
+}
+catch(e)
+{
+throw e
+}
+
+}
 
 export const getAllPosts = async () => {
-  try {
-    const cachedPosts = await client.get("posts");
-    if (cachedPosts) return JSON.parse(cachedPosts);
 
-    const postCollection = await posts();
+try
+{
 
-    let postList = await postCollection.find({}).toArray();
+const cachedPosts = await client.get('posts')
+if(cachedPosts) return JSON.parse(cachedPosts)
 
-    if (!postList) throw "Could not get all posts";
-    if (postList.length === 0) throw "No posts found";
+const post = await posts()
 
-    postList.forEach(post => {
-      post.id = post._id.toString();
-    });
+let postList = await post.find({}).toArray();
+    
+if (!postList) throw 'Could not get all posts';
+if (postList.length === 0) throw 'No posts found'
 
-    await client.setEx("posts", 3600, JSON.stringify(postList));
+for (let i = 0; i<postList.length; i++)
+{
+postList[i].id = postList[i]._id.toString()
+}
 
-    return postList;
-  } catch (e) {
-    throw e;
-  }
-};
+await client.setEx('posts', 3600, JSON.stringify(postList));
+
+return postList
+
+}
+catch(e)
+{
+throw e
+}
+    
+}
 
 export const getPost = async (id) => {
-  try {
-    if (!id) throw "No Post ID given";
-    id = validation.checkId(id);
 
-    const cacheKey = "post:" + id;
-    const cachedPost = await client.get(cacheKey);
-    if (cachedPost) return JSON.parse(cachedPost);
+try
+{
 
-    const postCollection = await posts();
+if(!id) throw 'No Post ID given'
+if(typeof id !== 'string') throw 'Post ID provided should be a string'
+id = id.trim()
+if(id.length === 0) throw 'Post ID cannot be empty'
+if (!ObjectId.isValid(id)) throw 'Invalid Post ID';
 
-    let idno = ObjectId.createFromHexString(id);
-    const retrievedPost = await postCollection.findOne({ _id: idno });
-    if (!retrievedPost) throw "Post could not be found";
+const cacheKey = 'post:'+id
+const cachedPost = await client.get(cacheKey)
+if(cachedPost) return JSON.parse(cachedPost)
 
-    await client.set(cacheKey, JSON.stringify(retrievedPost));
+let idno = ObjectId.createFromHexString(id)
 
-    return retrievedPost;
-  } catch (e) {
-    throw e;
-  }
-};
+const post = await posts()
 
-export const updatePost = async (
-  id,
-  userId,
-  userName,
-  title,
-  content,
-  media,
-  category,
-  location,
-  postDate
-) => {
-  try {
-    const postCollection = await posts();
-    const userCollection = await users();
+const retrievedPost = await post.findOne({_id: idno});
+if (!retrievedPost) {
+throw 'Post could not be found'
+}
 
-    id = validation.checkId(id);
-    userId = validation.checkId(userId);
-    userName = validation.checkString(userName, "User Name");
-    title = validation.checkString(title, "Title", { min: 2, max: 100 });
-    content = validation.checkString(content, "Content", { min: 10, max: 1000 });
-    location = validation.checkString(location, "Location", { min: 2, max: 100 });
-    media = validation.checkArray(media, "Media");
-    category = validation.checkString(category, "Category");
-    postDate = validation.checkString(postDate, "Post Date");
+await client.set(cacheKey, JSON.stringify(retrievedPost))
 
-    media = validation.checkMediaPath(media);
+return retrievedPost
 
-    const updatedAt = new Date().toISOString();
+}
+catch(e)
+{
+throw e
+}
 
-    const updateFields = {
-      userName,
-      title,
-      content,
-      media,
-      category,
-      location,
-      updatedAt,
-      postDate,
-    };
+}
 
-    let updatePost = await postCollection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: updateFields },
-      { returnDocument: "after" }
-    );
+export const updatePost = async (id, title, content, media, category, lat, lng, name) => {
 
-    if (!updatePost.value) throw "Post not found or update failed";
+try
+{
 
-    const cacheKey = "post:" + id;
-    await client.del(cacheKey);
-    await client.set(cacheKey, JSON.stringify(updatePost.value));
+if(!id) throw 'No Post ID given'
+if(typeof id !== 'string') throw 'Post ID provided should be a string'
+id = id.trim()
+if(id.length === 0) throw 'Post ID cannot be empty'
+if (!ObjectId.isValid(id)) throw 'Invalid Post ID';
+let idno = ObjectId.createFromHexString(id)
 
-    await userCollection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $set: { "posts.$[elem]": updatePost.value } },
-      { arrayFilters: [{ "elem._id": new ObjectId(id) }] }
-    );
+if (!title) throw 'title not provided';
+if (!content) throw 'content not provided';
+if (!media) throw 'media not provided';
+if (!category) throw 'category not provided';
+if (!lat) throw 'lat not provided';
+if (!lng) throw 'lng not provided';
+if (!name) throw 'name not provided';
 
-    return {
-      postUpdated: true,
-      postId: updatePost.value._id.toString(),
-    };
-  } catch (e) {
-    throw e;
-  }
-};
+if(typeof title !== 'string') throw 'Title should be a string'
+if(typeof content !== 'string') throw 'Content should be a string'
+if(typeof name !== 'string') throw 'Location Name should be a string'
 
+title = title.trim()
+content = content.trim()
+name = name.trim()
 
-export const deletePost = async (id, userId) => {
-  try {
-    const postCollection = await posts();
-    const userCollection = await users();
+if(title.length === 0) throw 'title should not be empty'
+if(content.length === 0) throw 'content should not be empty'
+if(name.length === 0) throw 'name should not be empty'
 
-    id = validation.checkId(id);
-    userId = validation.checkId(userId);
+if (!Array.isArray(media)) throw 'media should be an array'
 
-    const deletePost = await postCollection.findOneAndDelete({ _id: new ObjectId(id) });
-    if (!deletePost.value) throw "Post could not be deleted";
+for (let i of media)
+{
 
-    await userCollection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $pull: { posts: new ObjectId(id) } }
-    );
+if(typeof i !== 'string') throw 'media should only contain strings'
+i = i.trim()
+if(i.length === 0) throw 'media cannot contain empty strings'
+if (!/^http:\/\/localhost:5173\/media\/[a-zA-Z0-9_-]+\.(jpeg|jpg|png|gif|webp|mp4)$/i.test(i)) throw 'Invalid image/video URL'
 
-    const cacheKey = "post:" + id;
-    await client.del(cacheKey);
+}
 
-    return {
-      postDeleted: true,
-      postId: id,
-    };
-  } catch (e) {
-    throw e;
-  }
-};
+if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) throw 'Invalid latitude'
+if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) throw 'Invalid longitude'
+
+if(!Array.isArray(category)) throw 'category has to be an array'
+
+for (let j of category)
+{
+    if (typeof j !== 'string') throw 'category should only contain strings'
+    j = j.trim()
+    if(j.length === 0) throw 'category cannot contain empty strings'
+    if(!["Adventure", "Cultural Experiences", "Leisure"].includes(j)) throw 'Invalid category'
+}
+
+const location = {lat, lng, name}
+
+const updatedAt = new Date().toISOString();
+
+let updatePost = {title, content, media, category, location, updatedAt}
+
+const post = await posts()
+
+const updatedPost = post.findOneAndUpdate({_id: idno},
+    {$set: updatePost},
+    {returnDocument: 'after'})
+
+if(!updatedPost) throw 'Could not update post'
+
+const cacheKey = 'post:'+id
+await client.flushDb()
+await client.set(cacheKey, JSON.stringify(updatedPost));
+
+return updatedPost
+
+}
+catch(e)
+{
+throw e
+}
+
+}
+
+export const deletePost = async (id) => {
+
+try
+{
+
+const post = await posts()
+if(!id) throw 'No Post ID given'
+if(typeof id !== 'string') throw 'Post ID provided should be a string'
+id = id.trim()
+if(id.length === 0) throw 'Post ID cannot be empty'
+if (!ObjectId.isValid(id)) throw 'Invalid Post ID';
+
+let idno = ObjectId.createFromHexString(id)
+
+const deletedPost = await post.findOneAndDelete({_id: idno});
+if (!deletedPost) {
+throw 'Post could not be deleted'
+}
+
+await client.flushDb()
+
+return deletedPost
+
+}
+catch(e)
+{
+throw e
+}
+
+}
