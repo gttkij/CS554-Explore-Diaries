@@ -112,22 +112,6 @@ export function Post(props) {
               label="Location Name"
               variant="standard"
             />
-            <TextField
-              autoFocus
-              margin="dense"
-              id="lg"
-              name="lg"
-              label="Longitude"
-              variant="standard"
-            />
-            <TextField
-              autoFocus
-              margin="dense"
-              id="lat"
-              name="lat"
-              label="Latitude"
-              variant="standard"
-            />
           </DialogContent>
           <DialogActions>
             <button onClick={handleClose}>Cancel</button>

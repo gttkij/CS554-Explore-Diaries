@@ -6,6 +6,7 @@ import { Post } from "../components/Post";
 import "./UserPage.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AddPost } from "../components/AddPost";
 
 export function UserPage() {
   const { currentUser } = useContext(AuthContext);
@@ -40,6 +41,9 @@ export function UserPage() {
     <div>
       <div>
         <SideBar />
+      </div>
+      <div>
+        <AddPost />
       </div>
 
       <div className="post-list">
