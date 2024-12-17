@@ -19,7 +19,4 @@ const getCollectionFn = (collection) => {
 export const users = getCollectionFn('users');
 export const posts = getCollectionFn('posts');
 export const comments = getCollectionFn('comments');
-export const categories = getCollectionFn('categories');
 export const media = getCollectionFn('media');
-export const searchIndex = getCollectionFn('searchIndex');
-export const activityLogs = getCollectionFn('activityLogs');

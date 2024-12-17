@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
 import "./HomePage.css";
-// import CommentsList from './components/CommentsList';
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const categories = ["All", "Adventure", "Cultural Experiences", "Leisure"];
+  const categories = [
+    "All",
+    "Adventure",
+    "Cultural Experiences",
+    "Leisure",
+    "Nature",
+    "Urban Exploration",
+    "Wildlife",
+    "Solo Travel",
+    "Family Trips",
+  ];
 
   useEffect(() => {
     const fetchPosts = async () => {
