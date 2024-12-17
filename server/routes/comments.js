@@ -76,7 +76,6 @@ router.put("/comment/:commentId", async (req, res) => {
     validation.checkString(content, "Content", { min: "2", max: "200" });
 
     const comment = await getComment(commentId);
-    console.log("GET COMMENT ROUTE");
     if (!comment) {
       return res.status(404).json({ error: "Comment not found" });
     }

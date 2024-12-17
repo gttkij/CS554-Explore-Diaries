@@ -78,7 +78,6 @@ export const getAllComments = async (postId) => {
 
 export const getComment = async (commentId) => {
   commentId = validation.checkId(commentId);
-  console.log("GET COMMENT");
   const commentsCollection = await comments();
   const comment = await commentsCollection.findOne({
     _id: new ObjectId(commentId),
@@ -86,7 +85,6 @@ export const getComment = async (commentId) => {
 
   if (!comment) throw `Error: no comment exists with id: "${commentId}"`;
 
-  console.log(comment);
   return comment;
 };
 
