@@ -8,6 +8,7 @@ import { SignIn } from "./pages/SignIn";
 import { UserPage } from "./pages/UserPage";
 // import { SideBar } from "./components/SideBar";
 import ErrorNotFound from "./pages/ErrorNotFound";
+import { Header } from "./components/Header.jsx";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
     //   </Routes>
     // </Router>
     <AuthProvider>
+      <Header />
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />

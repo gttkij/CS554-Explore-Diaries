@@ -125,7 +125,7 @@ router
         });
 
       await esClient.indices.refresh({ index: "posts" });
-
+      await client.del(`userPosts:${userId}`);
       await client.del("posts");
       res.status(201).json({ message: "Post created successfully" });
     } catch (e) {
@@ -203,7 +203,9 @@ router
   });
 
 router.route("/:postId/delete").delete(async (req, res) => {
-  const { postId } = req.params;
+  console.log("Request received at /delete", req.body);
+  const postId = req.params.postId;
+  console.log(postId);
 
   try {
     const post = await getPost(postId);
@@ -227,7 +229,9 @@ router.route("/:postId/delete").delete(async (req, res) => {
         });
 
       const cacheKey = `post:${postId}`;
+      const userCacheKey = `userPosts:${post.userId}`;
       await client.del(cacheKey);
+      await client.del(userCacheKey);
 
       res
         .status(200)

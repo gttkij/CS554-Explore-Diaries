@@ -1,7 +1,9 @@
+import { doSignOut } from "../firebase/FirebaseFunctions";
+
 export default function SignOut() {
   return (
     <div>
-      <button type="submit">Sign out</button>
+      <button onClick={doSignOut}>Sign out</button>
     </div>
   );
 }

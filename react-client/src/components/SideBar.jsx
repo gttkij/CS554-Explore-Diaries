@@ -17,6 +17,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import SignOut from "./SignOut";
 
 export default function SideBar() {
   // const userName = props.userName;
@@ -168,7 +169,7 @@ export default function SideBar() {
             <li>
               <div className="icon-container"></div>
               <div>
-                <button onClick={doSignOut}>Sign Out</button>
+                <SignOut />
               </div>
               <Dialog
                 open={pwOpen}
