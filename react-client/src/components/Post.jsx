@@ -6,6 +6,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useState } from "react";
 import "./Post.css";
+import CommentsList from './components/CommentsList';
+
 
 export function Post(props) {
   //   const postId = props.postId;
@@ -135,6 +137,7 @@ export function Post(props) {
           </DialogActions>
         </Dialog>
         <button>Delete</button>
+        <CommentsList postId={props.postId} userId={'currentUserId'} />
       </div>
     </div>
   );
