@@ -8,6 +8,8 @@ import { SignIn } from "./pages/SignIn";
 import { UserPage } from "./pages/UserPage";
 // import { SideBar } from "./components/SideBar";
 import ErrorNotFound from "./pages/ErrorNotFound";
+import CreatePost from './components/CreatePost';
+import BlogPost from './components/BlogPost';
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
           <Route path="/login" element={<SignIn />} />
           <Route path="/userpage" element={<UserPage />} />
           <Route path="/errornotfound" element={<ErrorNotFound />} />
+          <Route path="/post/:id" element={<BlogPost />} />
+          <Route path="/create" element={<CreatePost />} />
           {/* Add Login and Sign Up Routes here if needed */}
         </Routes>
       </Router>
