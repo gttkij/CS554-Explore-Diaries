@@ -7,7 +7,35 @@ import {
   deletePost
 } from '../data/posts.js';
 
+import multer from 'multer';
+import { exec } from 'child_process';
+
+const upload = multer({ dest: 'uploads/' });
+
 const router = express.Router();
+
+router.post('/upload', upload.single('file'), (req, res) => {
+  const file = req.file;
+
+  if (!file) return res.status(400).json({ error: 'No file uploaded' });
+
+  const isVideo = file.mimetype.startsWith('video');
+  const destination = `public/media/${file.filename}${isVideo ? '.mp4' : '.png'}`;
+
+  if (!isVideo) {
+    exec(`convert ${file.path} -resize 800x800 ${destination}`, (err) => {
+      if (err) return res.status(500).json({ error: 'Image processing failed' });
+      res.json({ url: `http://localhost:5173/media/${file.filename}.png` });
+    });
+  } else {
+    
+    exec(`mv ${file.path} ${destination}`, (err) => {
+      if (err) return res.status(500).json({ error: 'Video upload failed' });
+      res.json({ url: `http://localhost:5173/media/${file.filename}.mp4` });
+    });
+  }
+});
+
 
 router.post('/', async (req, res) => {
   try {
