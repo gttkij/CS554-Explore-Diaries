@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./HomePage.css";
+// import { CommentsList } from "../components/CommentsList";
+import { CommentsList } from "../components/CommentsList";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
@@ -21,17 +23,17 @@ const HomePage = () => {
     const fetchPosts = async () => {
       try {
         const response = await fetch(`http://localhost:9200/posts/_search`, {
-          method: "POST",  // Change to POST
+          method: "POST", // Change to POST
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             query: {
-              match_all: {},  // This fetches all posts
+              match_all: {}, // This fetches all posts
             },
           }),
         });
-  
+
         const data = await response.json();
         const hits = data.hits.hits.map((hit) => hit._source); // Extract the posts
         setPosts(hits);
@@ -39,7 +41,7 @@ const HomePage = () => {
         console.error("Error fetching posts from Elasticsearch:", error);
       }
     };
-  
+
     fetchPosts();
   }, [selectedCategory]); // Use only selectedCategory here, since no search is being used
 
@@ -98,10 +100,17 @@ const HomePage = () => {
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <div key={post.id} className="post-card">
-              <img 
-                src={post.media && post.media[0] ? `http://localhost:3000${post.media[0]}` : ''} 
-                alt={post.title} 
-                style={{ display: post.media && post.media.length > 0 ? 'block' : 'none' }}
+              <img
+                src={
+                  post.media && post.media[0]
+                    ? `http://localhost:3000${post.media[0]}`
+                    : ""
+                }
+                alt={post.title}
+                style={{
+                  display:
+                    post.media && post.media.length > 0 ? "block" : "none",
+                }}
               />
               <div className="post-info">
                 <h2>{post.title}</h2>
@@ -113,7 +122,7 @@ const HomePage = () => {
                   <strong>Category:</strong> {post.category}
                 </p>
                 <button>Read more</button>
-                {/* <CommentsList postId={post.id} userId={"currentUserId"} /> */}
+                {/* <CommentsList postId={post._id} /> */}
               </div>
             </div>
           ))

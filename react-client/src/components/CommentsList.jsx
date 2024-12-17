@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import Comment from "./Comments";
 import CommentForm from "./CommentForm";
-import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
-
-function CommentsList({ postId }) {
+// import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
+import { AuthContext } from "../context/AuthContext";
+export function CommentsList(props) {
   const [comments, setComments] = useState([]);
   const { currentUser } = useContext(AuthContext);
-  const userId = currentUser?.uid;
+  // const userId = currentUser?.uid;
+  const postId = props.postId;
+  console.log(postId);
 
   useEffect(() => {
     async function fetchComments() {
@@ -25,20 +27,23 @@ function CommentsList({ postId }) {
 
   const addComment = async (postId, text, authorName, userId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/comments/${postId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          userName: authorName,
-          content: text,
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/comments/${postId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            userName: authorName,
+            content: text,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to add comment');
+        throw new Error("Failed to add comment");
       }
 
       const newComment = await response.json();
@@ -98,5 +103,3 @@ function CommentsList({ postId }) {
     </div>
   );
 }
-
-export default CommentsList;

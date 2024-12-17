@@ -47,7 +47,7 @@ export function Post(props) {
         <EditPost postId={id} />
 
         <button onClick={handleDelete}>Delete</button>
-        {/* <CommentsList postId={props.postId} userId={"currentUserId"} /> */}
+        <CommentsList postId={id} userId={fireId} />
       </div>
     </div>
   );
