@@ -1,0 +1,9 @@
+server/node_modules
+react-client/node_modules
+node_modules
+build
+.git
+.gitignore
+Dockerfile.*
+*.md
+*.log
