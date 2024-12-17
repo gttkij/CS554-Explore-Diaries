@@ -4,6 +4,9 @@ import multer from 'multer';
 import * as path from "path";
 import fs from 'fs';
 import redis from 'redis';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const client = redis.createClient({ url: "redis://localhost:6379" });
 client.connect().catch((err) => console.error("Redis Client Error", err));
@@ -36,6 +39,23 @@ const upload = multer({
   }
 });
 
+const uploadMedia = upload.array('media', 5); 
+
+const checkMinMediaSize = (req, res, next) => {
+  const minFileSize = 1024;
+
+  if (req.files) {
+    for (let file of req.files) {
+      if (file.size < minFileSize) {
+        return res.status(400).json({
+          errors: "Photo too small, please select photos more than 1KB."
+        });
+      }
+    }
+  }
+  next();
+};
+
 const router = Router();
 
 router.route('/')
@@ -54,8 +74,9 @@ router.route('/')
     }
   });
 
-router.route('/addPost')
-  .post(upload.array('media', 5), async (req, res) => {
+  router.route('/addPost')
+  .post(uploadMedia, checkMinMediaSize, async (req, res) => {
+
     const { userId, userName, title, content, category, location } = req.body;
     const media = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
 
@@ -69,16 +90,14 @@ router.route('/addPost')
         category,
         location
       );
-      if (postCreated) {
-        await client.del("posts");
-        res.status(201).json({ message: 'Post created successfully', postId });
-      } else {
-        res.status(500).json({ error: 'Internal Server Error' });
-      }
+      
+      res.status(201).json({ message: 'Post created successfully', postId });
+      
     } catch (e) {
       res.status(400).json({ error: e.message });
     }
   });
+
 
 router.route('/:postId')
   .get(async (req, res) => {
@@ -127,7 +146,7 @@ router.route('/:postId/update')
       await client.del(cacheKey);
       await client.set(cacheKey, JSON.stringify(updatedPost));
 
-      res.status(200).json({ postUpdated: true, postId: updatedPost._id.toString() });
+      res.status(200).json({ postUpdated: true, postId: updatedPost.postId });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
@@ -143,7 +162,7 @@ router.route('/:postId/delete')
         return res.status(404).json({ error: 'Post not found' });
       }
 
-      const { postDeleted, postId: deletedPostId } = await deletePost(postId, post.userId);
+      const { postDeleted, deletedPostId } = await deletePost(postId, post.userId);
 
       if (postDeleted) {
         const cacheKey = `post:${postId}`;
