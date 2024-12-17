@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
+import CommentsList from './components/CommentsList';
+
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
@@ -79,6 +81,7 @@ const HomePage = () => {
                 <p><strong>Longitude:</strong> {post.location.lng}</p>
                 <p><strong>Category:</strong> {post.category.join(', ')}</p>
                 <button>Read more</button>
+                <CommentsList postId={post.id} userId={'currentUserId'} />
               </div>
             </div>
           ))
