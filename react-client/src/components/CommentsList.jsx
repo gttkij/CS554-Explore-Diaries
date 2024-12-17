@@ -1,13 +1,12 @@
-//manage a list of comments
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Comment from "./Comments";
 import CommentForm from "./CommentForm";
+import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
 
 function CommentsList({ postId }) {
   const [comments, setComments] = useState([]);
   const { currentUser } = useContext(AuthContext);
-  const userId = currentUser.uid;
+  const userId = currentUser?.uid;
 
   useEffect(() => {
     async function fetchComments() {
@@ -25,39 +24,64 @@ function CommentsList({ postId }) {
   }, [postId]);
 
   const addComment = async (postId, text, authorName, userId) => {
-    const response = await fetch(`http://localhost:3000/api/comments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ postId, text, authorName, userId }),
-    });
-    const newComment = await response.json();
-    setComments([...comments, newComment]);
+    try {
+      const response = await fetch(`http://localhost:3000/api/comments/${postId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          userName: authorName,
+          content: text,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add comment');
+      }
+
+      const newComment = await response.json();
+      setComments((prevComments) => [...prevComments, newComment]);
+    } catch (error) {
+      console.error("Error adding comment", error.message);
+      alert("Failed to add comment. Please try again.");
+    }
   };
 
-  const editComment = async (id, text) => {
-    await fetch(`http://localhost:3000/api/comments/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text }),
-    });
-    const updatedComments = comments.map((comment) => {
-      if (comment._id === id) {
-        return { ...comment, text };
-      }
-      return comment;
-    });
-    setComments(updatedComments);
+  const editComment = async (id, content) => {
+    try {
+      await fetch(`http://localhost:3000/api/comments/comment/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      const updatedComments = comments.map((comment) => {
+        if (comment._id === id) {
+          return { ...comment, content };
+        }
+        return comment;
+      });
+      setComments(updatedComments);
+    } catch (error) {
+      console.error("Error editing comment", error.message);
+      alert("Failed to edit comment. Please try again.");
+    }
   };
 
   const deleteComment = async (id) => {
-    await fetch(`http://localhost:3000/api/comments/${id}`, {
-      method: "DELETE",
-    });
-    setComments(comments.filter((comment) => comment._id !== id));
+    try {
+      await fetch(`http://localhost:3000/api/comments/comment/${id}`, {
+        method: "DELETE",
+      });
+      setComments(comments.filter((comment) => comment._id !== id));
+    } catch (error) {
+      console.error("Error deleting comment", error.message);
+      alert("Failed to delete comment. Please try again.");
+    }
   };
 
   return (

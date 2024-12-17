@@ -4,45 +4,48 @@ import validation from '../validation.js';
 
 export const createComment = async (postId, userId, userName, content) => {
   let newComment = {
-    _id: new ObjectId(),
     userId: userId,
     commentDate: validation.getFormatedDate(new Date()),
     userName: userName,
     content: content,
   };
-
-  if (Object.values(newComment).some(item => item === undefined || item === null)) {
-    throw `Error: There are object missing for creating the comment.`;
-  }
-
-  postId = validation.checkId(postId);
-  userId = validation.checkId(userId);
-  userName = validation.checkString(userName, 'User Name');
-  content = validation.checkString(content, 'Content', { min: '2', max: '200' });
-
-  const commentsCollection = await comments();
-  const insertComment = await commentsCollection.insertOne(newComment);
-
-  if (!insertComment.acknowledged || !insertComment.insertedId) {
-    throw 'Error: Could not add comment';
-  }
-
-  const postCollection = await posts();
-  const updatePost = await postCollection.updateOne(
-    { "_id": new ObjectId(postId) },
-    {
-      $push: { "commentList": insertComment.insertedId }
+  try {
+    if (Object.values(newComment).some(item => item === undefined || item === null)) {
+      throw `Error: There are object missing for creating the comment.`;
     }
-  );
-
-  if (!updatePost.modifiedCount) {
-    throw 'Error: Could not update the post with the new comment ID';
+  
+    postId = validation.checkId(postId);
+    userId = validation.checkId(userId);
+    userName = validation.checkString(userName, 'User Name');
+    content = validation.checkString(content, 'Content', { min: '2', max: '200' });
+    const commentsCollection = await comments();
+    const insertComment = await commentsCollection.insertOne(newComment);
+  
+    if (!insertComment) {
+      throw 'Error: Could not add comment';
+    }
+  
+    const postCollection = await posts();
+    const updatePost = await postCollection.updateOne(
+      { "_id": new ObjectId(postId) },
+      {
+        $push: { "commentList": insertComment.insertedId }
+      }
+    );
+  
+    if (!updatePost.modifiedCount) {
+      throw 'Error: Could not update the post with the new comment ID';
+    }
+  
+    return {
+      commentSubmittedCompleted: true,
+      commentId: insertComment.insertedId.toString(),
+    };
+  } catch(e) {
+    console.error("Error during comment creation:", e);
+    throw e;
   }
-
-  return {
-    commentSubmittedCompleted: true,
-    commentId: insertComment.insertedId.toString(),
-  };
+  
 };
 
 export const getAllComments = async (postId) => {
