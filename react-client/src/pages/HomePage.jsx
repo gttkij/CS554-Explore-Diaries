@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
-import CommentsList from './components/CommentsList';
-
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const categories = ["All", "Adventure", "Cultural Experiences", "Leisure"];
+  const categories = ["All", "Adventure", "Cultural Experiences", "Leisure", "Nature", "Urban Exploration", "Wildlife", "Solo Travel", "Family Trips"];
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -23,7 +21,7 @@ const HomePage = () => {
             },
           }),
         });
-  
+
         const data = await response.json();
         const hits = data.hits.hits.map(hit => hit._source); // Extract the posts
         setPosts(hits);
@@ -31,19 +29,17 @@ const HomePage = () => {
         console.error('Error fetching posts from Elasticsearch:', error);
       }
     };
-  
-    fetchPosts();
-  }, [selectedCategory]);  // Use only selectedCategory here, since no search is being used
 
-  // Filter posts based on search query and selected category
+    fetchPosts();
+  }, [selectedCategory]);
+
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'All' || post.category.includes(selectedCategory);
     const matchesSearch = 
       (post.title && post.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (post.description && post.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (post.location && post.location.name && post.location.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (post.category && post.category.some(cat => cat.toLowerCase().includes(searchQuery.toLowerCase())));
-
+      (post.content && post.content.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (post.location && post.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (post.category && post.category.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return matchesSearch && matchesCategory;
   });
@@ -83,16 +79,17 @@ const HomePage = () => {
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <div key={post.id} className="post-card">
-              <img src={post.media && post.media[0]} alt={post.title} style={{ display: post.media && post.media.length > 0 ? 'block' : 'none' }}/>
+              <img 
+                src={post.media && post.media[0] ? `http://localhost:3000${post.media[0]}` : ''} 
+                alt={post.title} 
+                style={{ display: post.media && post.media.length > 0 ? 'block' : 'none' }}
+              />
               <div className="post-info">
                 <h2>{post.title}</h2>
                 <p>{post.content}</p>
-                <p><strong>Location Name:</strong> {post.name}</p>
-                <p><strong>Latitude:</strong> {post.lat}</p>
-                <p><strong>Longitude:</strong> {post.lng}</p>
-                <p><strong>Category:</strong> {post.category.join(', ')}</p>
+                <p><strong>Location:</strong> {post.location}</p>
+                <p><strong>Category:</strong> {post.category}</p>
                 <button>Read more</button>
-                <CommentsList postId={post.id} userId={'currentUserId'} />
               </div>
             </div>
           ))
