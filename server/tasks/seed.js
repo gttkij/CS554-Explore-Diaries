@@ -125,6 +125,17 @@ const generateSeedData = async () => {
 
     console.log('Cleared existing data from MongoDB');
 
+    await esClient.deleteByQuery({
+      index: 'posts',
+      body: {
+        query: {
+          match_all: {}
+        }
+      }
+    });
+
+    console.log("Cleared existing data from Elasticsearch")
+
     const createdUsers = [];
     for (let i = 0; i < firebaseUsers.length; i++) {
       const user = firebaseUsers[i];

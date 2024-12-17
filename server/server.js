@@ -68,25 +68,32 @@ const eSClient = new Client({
 app.get('/api/search', async (req, res) => {
   try {
     const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: "Query parameter is required" });
+    }
+
     const result = await eSClient.search({
       index: 'posts',
       body: {
         query: {
-          multi_match: {
-            query,
-            fields: ['title', 'content', 'category', 'location'],
-          },
+          match_all: {}
+          // multi_match: {
+          //   query,
+          //   fields: ['title', 'content', 'category', 'location'],
+          // },
         },
       },
     });
 
     const posts = result.body.hits.hits.map(hit => hit._source);
+
     res.json(posts);
   } catch (error) {
     console.error("Error searching posts:", error);
-    res.status(500).json({ error: "Failed to search posts" });
+    res.status(500).json({ error: "Failed to search posts", details: error.message });
   }
 });
+
 
 configRoutes(app);
 
