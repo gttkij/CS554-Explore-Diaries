@@ -8,6 +8,7 @@ export const createComment = async (postId, userId, userName, content) => {
     commentDate: validation.getFormatedDate(new Date()),
     userName: userName,
     content: content,
+    postId: postId
   };
   try {
     if (
@@ -77,7 +78,6 @@ export const getAllComments = async (postId) => {
 
 export const getComment = async (commentId) => {
   commentId = validation.checkId(commentId);
-
   const commentsCollection = await comments();
   const comment = await commentsCollection.findOne({
     _id: new ObjectId(commentId),
@@ -129,27 +129,37 @@ export const updateComment = async (commentId, updateObject) => {
 };
 
 export const removeComment = async (commentId) => {
-  commentId = validation.checkId(commentId);
-
-  const postCollection = await posts();
-
-  const updatePostInfo = await postCollection.updateOne(
-    { commentList: new ObjectId(commentId) },
-    { $pull: { commentList: new ObjectId(commentId) } }
-  );
-
-  if (!updatePostInfo.modifiedCount) {
-    throw `Error: Could not remove comment ID from post's commentList`;
+  try{
+    commentId = validation.checkId(commentId);
+  } catch(e) {
+    console.error("Error during comment deletion:", e);
+    throw e;
   }
 
-  const commentsCollection = await comments();
-  const deleteInfo = await commentsCollection.deleteOne({
-    _id: new ObjectId(commentId),
-  });
+  try{
+    const postCollection = await posts();
 
-  if (!deleteInfo.deletedCount) {
-    throw `Error: Could not delete comment with id: ${commentId}`;
+    const updatePostInfo = await postCollection.updateOne(
+      { commentList: new ObjectId(commentId) },
+      { $pull: { commentList: new ObjectId(commentId) } }
+    );
+
+    if (!updatePostInfo.modifiedCount) {
+      throw `Error: Could not remove comment ID from post's commentList`;
+    }
+
+    const commentsCollection = await comments();
+    const deleteInfo = await commentsCollection.deleteOne({
+      _id: new ObjectId(commentId),
+    });
+
+    if (!deleteInfo.deletedCount) {
+      throw `Error: Could not delete comment with id: ${commentId}`;
+    }
+
+    return { success: true };
+  } catch(e) {
+    console.error("Error during comment deletion:", e);
+    throw e;
   }
-
-  return { success: true };
 };

@@ -27,7 +27,6 @@ router
       }
 
       const comments = await getAllComments(postId);
-
       await client.setEx(`comments:${postId}`, 3600, JSON.stringify(comments));
 
       res.status(200).json(comments);
@@ -41,11 +40,12 @@ router
 
     try {
       validation.checkId(postId);
-      // validation.checkId(userId);
       validation.checkString(userName, "User Name");
       validation.checkString(content, "Content", { min: "2", max: "200" });
+
       const result = await createComment(postId, userId, userName, content);
 
+      // Invalidate cache when new comment is added
       await client.del(`comments:${postId}`);
 
       res.status(201).json({
@@ -75,13 +75,19 @@ router.put("/comment/:commentId", async (req, res) => {
   try {
     validation.checkString(content, "Content", { min: "2", max: "200" });
 
+    const comment = await getComment(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
     const updatedComment = await updateComment(commentId, { content });
 
-    await client.del(`comments:${updatedComment.postId}`);
+    await client.del(`comments:${comment.postId}`);
 
-    res
-      .status(200)
-      .json({ message: "Comment updated successfully", updatedComment });
+    res.status(200).json({
+      message: "Comment updated successfully",
+      updatedComment,
+    });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
@@ -91,9 +97,16 @@ router.delete("/comment/:commentId", async (req, res) => {
   const { commentId } = req.params;
 
   try {
+    const commentToDelete = await getComment(commentId);
+    
+    if (!commentToDelete) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    const postId = commentToDelete.postId;
     const deletedComment = await removeComment(commentId);
 
-    await client.del(`comments:${deletedComment.postId}`);
+    await client.del(`comments:${postId}`);
 
     res.status(200).json({ message: "Comment deleted successfully" });
   } catch (e) {
