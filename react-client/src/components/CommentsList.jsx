@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import Comment from "./Comments";
+import Comment from "./Comment";
 import CommentForm from "./CommentForm";
-import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
-
-function CommentsList({ postId }) {
+// import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
+import { AuthContext } from "../context/AuthContext";
+import Comments from "./Comments";
+export function CommentsList(props) {
   const [comments, setComments] = useState([]);
   const { currentUser } = useContext(AuthContext);
-  const userId = currentUser?.uid;
+  // const userId = currentUser?.uid;
+  const postId = props.postId;
 
   useEffect(() => {
     async function fetchComments() {
@@ -25,20 +27,23 @@ function CommentsList({ postId }) {
 
   const addComment = async (postId, text, authorName, userId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/comments/${postId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          userName: authorName,
-          content: text,
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/comments/${postId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            userName: authorName,
+            content: text,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to add comment');
+        throw new Error("Failed to add comment");
       }
 
       const newComment = await response.json();
@@ -84,19 +89,30 @@ function CommentsList({ postId }) {
     }
   };
 
+  console.log(comments);
   return (
     <div>
+      <h4>Comments:</h4>
       {comments.map((comment) => (
-        <Comment
-          key={comment._id}
-          comment={comment}
-          onEdit={editComment}
-          onDelete={deleteComment}
-        />
+        <div>
+          <Comment key={comment._id} comment={comment} />
+          <Comments
+            comment={comment}
+            onEdit={editComment}
+            onDelete={deleteComment}
+          />
+        </div>
       ))}
-      <CommentForm postId={postId} onSave={addComment} userId={userId} />
+
+      {currentUser ? (
+        <CommentForm
+          postId={postId}
+          onSave={addComment}
+          userId={currentUser.uid}
+        />
+      ) : (
+        <p>Please log in to leave a comment</p>
+      )}
     </div>
   );
 }
-
-export default CommentsList;

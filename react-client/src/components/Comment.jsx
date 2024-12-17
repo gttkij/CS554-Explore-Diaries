@@ -1,28 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { List, ListItem, ListItemText, Typography, Divider } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Divider,
+} from "@mui/material";
+import Comments from "./Comments";
 //Assuming you might want custom styles
 
-function Comment({ postId }) {
-  const [comments, setComments] = useState([]);
+function Comment({ comment }) {
+  // const [comments, setComments] = useState([]);
 
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        // Placeholder URL - Replace with your actual endpoint to fetch comments
-        const response = await fetch(`http://localhost:3000/api/comments/${postId}`);
-        const data = await response.json();
-        setComments(data);
-      } catch (error) {
-        console.error('Error fetching comments:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchComments = async () => {
+  //     try {
+  //       // Placeholder URL - Replace with your actual endpoint to fetch comments
+  //       const response = await fetch(
+  //         `http://localhost:3000/api/comments/${postId}`
+  //       );
+  //       const data = await response.json();
+  //       setComments(data);
+  //     } catch (error) {
+  //       console.error("Error fetching comments:", error);
+  //     }
+  //   };
 
-    fetchComments();
-  }, [postId]);
+  //   fetchComments();
+  // }, [postId]);
+
+  // console.log(comment);
 
   return (
     <div className="comments-container">
-      <Typography variant="h6" gutterBottom>
+      <p>{comment.content}</p>
+      {/* <Comments /> */}
+      {/* <Typography variant="h6" gutterBottom>
         Comments
       </Typography>
       <List>
@@ -38,9 +51,11 @@ function Comment({ postId }) {
                       variant="body2"
                       color="text.primary"
                     >
-                      {new Date(comment.postDate).toLocaleDateString()} - {new Date(comment.postDate).toLocaleTimeString()}
+                      {new Date(comment.postDate).toLocaleDateString()} -{" "}
+                      {new Date(comment.postDate).toLocaleTimeString()}
                     </Typography>
-                    {' - '}{comment.content}
+                    {" - "}
+                    {comment.content}
                   </React.Fragment>
                 }
               />
@@ -48,7 +63,7 @@ function Comment({ postId }) {
             <Divider variant="inset" component="li" />
           </React.Fragment>
         ))}
-      </List>
+      </List> */}
     </div>
   );
 }

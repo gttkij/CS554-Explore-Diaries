@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; // Import AuthContext
-import  SignOut  from "../components/SignOut"; // Import SignOut component
+import SignOut from "../components/SignOut"; // Import SignOut component
 import "./HomePage.css";
+// import { CommentsList } from "../components/CommentsList";
+import { CommentsList } from "../components/CommentsList";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
@@ -97,7 +99,8 @@ const HomePage = () => {
         {currentUser ? (
           <div className="auth-buttons">
             <button onClick={handleUsernameClick}>
-              {currentUser.displayName || currentUser.email} {/* Display username */}
+              {currentUser.displayName || currentUser.email}{" "}
+              {/* Display username */}
             </button>
             <SignOut /> {/* Use SignOut component for logging out */}
           </div>
@@ -150,7 +153,8 @@ const HomePage = () => {
                 }
                 alt={post.title}
                 style={{
-                  display: post.media && post.media.length > 0 ? "block" : "none",
+                  display:
+                    post.media && post.media.length > 0 ? "block" : "none",
                 }}
               />
               <div className="post-info">
@@ -162,7 +166,9 @@ const HomePage = () => {
                 <p>
                   <strong>Category:</strong> {post.category}
                 </p>
-                <button onClick={() => handleReadMore(post.id)}>Read more</button>
+                <button onClick={() => handleReadMore(post.id)}>
+                  Read more
+                </button>
               </div>
             </div>
           ))
