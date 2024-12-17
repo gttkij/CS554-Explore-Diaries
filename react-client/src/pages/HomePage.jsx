@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext"; // Import AuthContext
+import  SignOut  from "../components/SignOut"; // Import SignOut component
 import "./HomePage.css";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const { currentUser } = useContext(AuthContext); // Get currentUser from AuthContext
   const categories = [
     "All",
     "Adventure",
@@ -17,33 +22,37 @@ const HomePage = () => {
     "Family Trips",
   ];
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await fetch(`http://localhost:9200/posts/_search`, {
-          method: "POST",  // Change to POST
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             query: {
-              match_all: {},  // This fetches all posts
+              match_all: {}, // Fetch all posts
             },
           }),
         });
-  
+
         const data = await response.json();
-        const hits = data.hits.hits.map((hit) => hit._source); // Extract the posts
+        const hits = data.hits.hits.map((hit) => ({
+          id: hit._id,
+          ...hit._source,
+        }));
         setPosts(hits);
       } catch (error) {
         console.error("Error fetching posts from Elasticsearch:", error);
       }
     };
-  
-    fetchPosts();
-  }, [selectedCategory]); // Use only selectedCategory here, since no search is being used
 
-  // Filter posts based on search query and selected category
+    fetchPosts();
+  }, [selectedCategory]);
+
   const filteredPosts = posts.filter((post) => {
     const matchesCategory =
       selectedCategory === "All" || post.category.includes(selectedCategory);
@@ -61,9 +70,44 @@ const HomePage = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const handleReadMore = (postId) => {
+    console.log("Post ID in handleReadMore:", postId);
+    navigate(`/post/${postId}`);
+  };
+
+  const handleSignIn = () => {
+    navigate("/login");
+  };
+
+  const handleSignUp = () => {
+    navigate("/signup");
+  };
+
+  const handleUsernameClick = () => {
+    navigate(`/userpage`); // Navigate to the UserPage using the username
+  };
+
   return (
     <div className="home-page">
-      <h1>Explore Diaries</h1>
+      {/* Header section with Explore Diaries and Sign In/Sign Up buttons */}
+      <div className="header-container">
+        <h1>Explore Diaries</h1>
+
+        {/* Conditionally render Sign In/Sign Up buttons or username */}
+        {currentUser ? (
+          <div className="auth-buttons">
+            <button onClick={handleUsernameClick}>
+              {currentUser.displayName || currentUser.email} {/* Display username */}
+            </button>
+            <SignOut /> {/* Use SignOut component for logging out */}
+          </div>
+        ) : (
+          <div className="auth-buttons">
+            <button onClick={handleSignIn}>Sign In</button>
+            <button onClick={handleSignUp}>Sign Up</button>
+          </div>
+        )}
+      </div>
 
       {/* Search Bar */}
       <div className="search-container">
@@ -98,10 +142,16 @@ const HomePage = () => {
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => (
             <div key={post.id} className="post-card">
-              <img 
-                src={post.media && post.media[0] ? `http://localhost:3000${post.media[0]}` : ''} 
-                alt={post.title} 
-                style={{ display: post.media && post.media.length > 0 ? 'block' : 'none' }}
+              <img
+                src={
+                  post.media && post.media[0]
+                    ? `http://localhost:3000${post.media[0]}`
+                    : ""
+                }
+                alt={post.title}
+                style={{
+                  display: post.media && post.media.length > 0 ? "block" : "none",
+                }}
               />
               <div className="post-info">
                 <h2>{post.title}</h2>
@@ -112,8 +162,7 @@ const HomePage = () => {
                 <p>
                   <strong>Category:</strong> {post.category}
                 </p>
-                <button>Read more</button>
-                {/* <CommentsList postId={post.id} userId={"currentUserId"} /> */}
+                <button onClick={() => handleReadMore(post.id)}>Read more</button>
               </div>
             </div>
           ))

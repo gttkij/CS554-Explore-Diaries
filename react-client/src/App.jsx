@@ -9,6 +9,7 @@ import { UserPage } from "./pages/UserPage";
 // import { SideBar } from "./components/SideBar";
 import ErrorNotFound from "./pages/ErrorNotFound";
 import { Header } from "./components/Header.jsx";
+import PostPage from "./pages/PostPage";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/login" element={<SignIn />} />
           <Route path="/userpage" element={<UserPage />} />
           <Route path="/errornotfound" element={<ErrorNotFound />} />
+          <Route path="/post/:postId" element={<PostPage />} />
           {/* Add Login and Sign Up Routes here if needed */}
         </Routes>
       </Router>
