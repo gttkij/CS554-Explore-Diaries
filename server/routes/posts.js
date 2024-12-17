@@ -11,6 +11,9 @@ import * as path from "path";
 import fs from "fs";
 import redis from "redis";
 import { fileURLToPath } from "url";
+import { Client } from "@elastic/elasticsearch";
+
+const esClient = new Client({ node: "http://localhost:9200" });
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -89,14 +92,13 @@ router.route("/").get(async (req, res) => {
 router
   .route("/addPost")
   .post(uploadMedia, checkMinMediaSize, async (req, res) => {
-    console.log("Request received at /addPost:", req.body);
     const { userId, userName, title, content, category, location } = req.body;
     const media = req.files
       ? req.files.map((file) => `/uploads/${file.filename}`)
       : [];
 
     try {
-      const { postCreated, postId } = await createPost(
+      const newPost = await createPost(
         userId,
         userName,
         title,
@@ -106,7 +108,26 @@ router
         location
       );
 
-      res.status(201).json({ message: "Post created successfully", postId });
+      await esClient
+        .index({
+          index: "posts",
+          id: newPost._id.toString(),
+          body: {
+            title: newPost.title,
+            content: newPost.content,
+            category: newPost.category,
+            location: newPost.location,
+            media: newPost.media,
+          },
+        })
+        .catch((err) => {
+          console.error("Error indexing post to Elasticsearch:", err);
+        });
+
+      await esClient.indices.refresh({ index: "posts" });
+
+      await client.del("posts");
+      res.status(201).json({ message: "Post created successfully" });
     } catch (e) {
       res.status(400).json({ error: e.message });
     }
@@ -157,6 +178,20 @@ router
         post.postDate
       );
 
+      await esClient.update({
+        index: "posts",
+        id: postId,
+        body: {
+          doc: {
+            title,
+            content,
+            category,
+            location,
+            media,
+          },
+        },
+      });
+
       const cacheKey = `post:${postId}`;
       await client.del(cacheKey);
       await client.set(cacheKey, JSON.stringify(updatedPost));
@@ -182,8 +217,18 @@ router.route("/:postId/delete").delete(async (req, res) => {
     );
 
     if (postDeleted) {
+      await esClient
+        .delete({
+          index: "posts",
+          id: postId,
+        })
+        .catch((err) => {
+          console.error("Error deleting post from Elasticsearch:", err);
+        });
+
       const cacheKey = `post:${postId}`;
       await client.del(cacheKey);
+
       res
         .status(200)
         .json({ message: "Post deleted successfully", postId: deletedPostId });
