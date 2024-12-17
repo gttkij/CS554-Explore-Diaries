@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { addUser, editUser } from "../data/auth.js";
+import { getPostsByUser } from "../data/auth.js";
 
 const router = Router();
 
@@ -29,6 +30,28 @@ router.route("/").patch(async (req, res) => {
     return res.json(update);
   } catch (e) {
     return res.status(400).json({ error: e });
+  }
+});
+
+router.route("/:userId").get(async (req, res) => {
+  console.log("Request received at /userId");
+
+  const userId = req.params.userId;
+  console.log(userId);
+
+  try {
+    const cacheKey = `userPosts:${userId}`;
+    const cachedPost = await client.get(cacheKey);
+    if (cachedPost) {
+      return res.status(200).json(JSON.parse(cachedPost));
+    }
+
+    const posts = await getPostsByUser(userId);
+
+    await client.set(cacheKey, JSON.stringify(posts));
+    res.status(200).json(posts);
+  } catch (e) {
+    res.status(404).json({ error: e });
   }
 });
 
