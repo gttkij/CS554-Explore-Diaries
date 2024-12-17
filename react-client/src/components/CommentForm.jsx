@@ -1,20 +1,20 @@
 //form used to submit new comments
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 function CommentForm({ postId, onSave, userId }) {
-  const [text, setText] = useState('');
-  const [authorName, setAuthorName] = useState('');
+  const [text, setText] = useState("");
+  const [authorName, setAuthorName] = useState("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!userId) {
-      alert('You must be logged in to post comments.');
+      alert("You must be logged in to post comments.");
       return;
     }
     onSave(postId, text, authorName, userId);
-    setText('');
-    setAuthorName('');
+    setText("");
+    setAuthorName("");
   };
 
   return (

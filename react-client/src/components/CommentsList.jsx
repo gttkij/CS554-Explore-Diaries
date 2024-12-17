@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import Comment from "./Comments";
+import Comment from "./Comment";
 import CommentForm from "./CommentForm";
 // import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
 import { AuthContext } from "../context/AuthContext";
+import Comments from "./Comments";
 export function CommentsList(props) {
   const [comments, setComments] = useState([]);
   const { currentUser } = useContext(AuthContext);
   // const userId = currentUser?.uid;
   const postId = props.postId;
-  console.log(postId);
 
   useEffect(() => {
     async function fetchComments() {
@@ -89,17 +89,30 @@ export function CommentsList(props) {
     }
   };
 
+  console.log(comments);
   return (
     <div>
+      <h4>Comments:</h4>
       {comments.map((comment) => (
-        <Comment
-          key={comment._id}
-          comment={comment}
-          onEdit={editComment}
-          onDelete={deleteComment}
-        />
+        <div>
+          <Comment key={comment._id} comment={comment} />
+          <Comments
+            comment={comment}
+            onEdit={editComment}
+            onDelete={deleteComment}
+          />
+        </div>
       ))}
-      <CommentForm postId={postId} onSave={addComment} userId={userId} />
+
+      {currentUser ? (
+        <CommentForm
+          postId={postId}
+          onSave={addComment}
+          userId={currentUser.uid}
+        />
+      ) : (
+        <p>Please log in to leave a comment</p>
+      )}
     </div>
   );
 }

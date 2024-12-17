@@ -4,6 +4,7 @@ import "./postpage.css";
 import { EditPost } from "../components/EditPost";
 import { AuthContext } from "../context/AuthContext";
 import SignOut from "../components/SignOut"; // Import SignOut component
+import { CommentsList } from "../components/CommentsList";
 
 const PostPage = () => {
   const { postId } = useParams(); // Extract postId from the URL
@@ -22,7 +23,9 @@ const PostPage = () => {
 
     const fetchPost = async () => {
       try {
-        const response = await fetch(`http://localhost:9200/posts/_doc/${postId}`);
+        const response = await fetch(
+          `http://localhost:9200/posts/_doc/${postId}`
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -94,7 +97,8 @@ const PostPage = () => {
         {currentUser ? (
           <div className="auth-buttons">
             <button onClick={handleUsernameClick}>
-              {currentUser.displayName || currentUser.email} {/* Display username */}
+              {currentUser.displayName || currentUser.email}{" "}
+              {/* Display username */}
             </button>
             <SignOut /> {/* Use SignOut component for logging out */}
           </div>
@@ -112,42 +116,42 @@ const PostPage = () => {
       {/* Image Slider */}
       <div className="image-slider">
         {post.media && post.media.length > 0 ? (
-            <>
+          <>
             {post.media[currentImageIndex].endsWith(".mp4") ? (
-                // Video content
-                <video
+              // Video content
+              <video
                 width="100%"
                 controls
                 key={currentImageIndex}
                 className="slider-image"
-                >
+              >
                 <source
-                    src={`http://localhost:3000${post.media[currentImageIndex]}`}
-                    type="video/mp4"
+                  src={`http://localhost:3000${post.media[currentImageIndex]}`}
+                  type="video/mp4"
                 />
                 Your browser does not support the video tag.
-                </video>
+              </video>
             ) : (
-                // Image content
-                <img
+              // Image content
+              <img
                 src={`http://localhost:3000${post.media[currentImageIndex]}`}
                 alt={post.title}
                 className="slider-image"
-                />
+              />
             )}
 
             {/* Navigation buttons */}
             <button className="prev-btn" onClick={goToPreviousImage}>
-                &lt;
+              &lt;
             </button>
             <button className="next-btn" onClick={goToNextImage}>
-                &gt;
+              &gt;
             </button>
-            </>
+          </>
         ) : (
-            <p>No media available for this post.</p>
+          <p>No media available for this post.</p>
         )}
-        </div>
+      </div>
 
       <p>{post.content}</p>
       <p>
@@ -156,6 +160,10 @@ const PostPage = () => {
       <p>
         <strong>Category:</strong> {post.category}
       </p>
+
+      <div>
+        <CommentsList postId={postId} />
+      </div>
 
       {/* Action buttons */}
       <div className="post-actions">

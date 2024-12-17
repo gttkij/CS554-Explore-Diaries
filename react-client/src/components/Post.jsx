@@ -7,11 +7,14 @@ import "../pages/SignIn.css";
 import { MdOutlineUploadFile } from "react-icons/md";
 import { styled } from "@mui/material/styles";
 import { EditPost } from "./EditPost";
+import { CommentsList } from "./CommentsList";
 
-export function Post(props) {
+export function Post({ post }) {
   const { currentUser } = useContext(AuthContext);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Store index of current image
+
   const fireId = currentUser.uid;
-  const id = props.id;
+  const id = post._id;
   console.log(id);
 
   const handleDelete = async () => {
@@ -32,17 +35,69 @@ export function Post(props) {
       alert(e);
     }
   };
+
+  const goToNextImage = () => {
+    if (post.media && post.media.length > 0) {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % post.media.length); // Loop back to first image
+    }
+  };
+
+  const goToPreviousImage = () => {
+    if (post.media && post.media.length > 0) {
+      setCurrentImageIndex(
+        (prevIndex) => (prevIndex - 1 + post.media.length) % post.media.length
+      ); // Loop back to last image
+    }
+  };
   return (
     <div className="post-card">
-      {/* <img src={props.image} alt={props.title} /> */}
+      {/* <img src={post.image} alt={post.title} /> */}
       <div className="post-info">
-        <h2>{props.title}</h2>
-        <p>{props.content}</p>
+        <div className="image-slider">
+          {post.media && post.media.length > 0 ? (
+            <>
+              {post.media[currentImageIndex].endsWith(".mp4") ? (
+                // Video content
+                <video
+                  width="100%"
+                  controls
+                  key={currentImageIndex}
+                  className="slider-image"
+                >
+                  <source
+                    src={`http://localhost:3000${post.media[currentImageIndex]}`}
+                    type="video/mp4"
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                // Image content
+                <img
+                  src={`http://localhost:3000${post.media[currentImageIndex]}`}
+                  alt={post.title}
+                  className="slider-image"
+                />
+              )}
+
+              {/* Navigation buttons */}
+              <button className="prev-btn" onClick={goToPreviousImage}>
+                &lt;
+              </button>
+              <button className="next-btn" onClick={goToNextImage}>
+                &gt;
+              </button>
+            </>
+          ) : (
+            <p>No media available for this post.</p>
+          )}
+        </div>
+        <h2>{post.title}</h2>
+        <p>{post.content}</p>
         <p>
-          <strong>Location:</strong> {props.location}
+          <strong>Location:</strong> {post.location}
         </p>
         <p>
-          <strong>Category:</strong> {props.category}
+          <strong>Category:</strong> {post.category}
         </p>
         <EditPost postId={id} />
 

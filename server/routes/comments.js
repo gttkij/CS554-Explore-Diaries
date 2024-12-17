@@ -1,95 +1,104 @@
-import express from 'express';
-import { createComment, getAllComments, getComment, updateComment, removeComment } from '../data/comments.js'; // Import the functions from your comments data file
-import validation from '../validation.js';
-import redis from 'redis';
+import express from "express";
+import {
+  createComment,
+  getAllComments,
+  getComment,
+  updateComment,
+  removeComment,
+} from "../data/comments.js"; // Import the functions from your comments data file
+import validation from "../validation.js";
+import redis from "redis";
 
 const router = express.Router();
 const client = redis.createClient({ url: "redis://localhost:6379" });
 
 client.connect().catch((err) => console.error("Redis Client Error", err));
 
-router.route('/:postId')
-.get(async (req, res) => {
+router
+  .route("/:postId")
+  .get(async (req, res) => {
     const { postId } = req.params;
 
     try {
-        const cachedComments = await client.get(`comments:${postId}`);
-        if (cachedComments) {
-            console.log("Comments fetched from Redis cache.");
-            return res.status(200).json(JSON.parse(cachedComments));
-        }
+      const cachedComments = await client.get(`comments:${postId}`);
+      if (cachedComments) {
+        console.log("Comments fetched from Redis cache.");
+        return res.status(200).json(JSON.parse(cachedComments));
+      }
 
-        const comments = await getAllComments(postId);
+      const comments = await getAllComments(postId);
 
-        await client.setEx(`comments:${postId}`, 3600, JSON.stringify(comments));
+      await client.setEx(`comments:${postId}`, 3600, JSON.stringify(comments));
 
-        res.status(200).json(comments);
+      res.status(200).json(comments);
     } catch (e) {
-        res.status(400).json({ error: e.message });
+      res.status(400).json({ error: e.message });
     }
-})
-.post(async (req, res) => {
+  })
+  .post(async (req, res) => {
     const { postId } = req.params;
     const { userId, userName, content } = req.body;
 
     try {
-        validation.checkId(postId);
-        validation.checkId(userId);
-        validation.checkString(userName, 'User Name');
-        validation.checkString(content, 'Content', { min: '2', max: '200' });
-        const result = await createComment(postId, userId, userName, content);
+      validation.checkId(postId);
+      // validation.checkId(userId);
+      validation.checkString(userName, "User Name");
+      validation.checkString(content, "Content", { min: "2", max: "200" });
+      const result = await createComment(postId, userId, userName, content);
 
-        await client.del(`comments:${postId}`);
+      await client.del(`comments:${postId}`);
 
-        res.status(201).json({
-            message: 'Comment created successfully',
-            commentId: result.commentId,
-        });
+      res.status(201).json({
+        message: "Comment created successfully",
+        commentId: result.commentId,
+      });
     } catch (e) {
-        res.status(400).json({ error: e.message });
+      res.status(400).json({ error: e.message });
     }
+  });
+
+router.get("/comment/:commentId", async (req, res) => {
+  const { commentId } = req.params;
+
+  try {
+    const comment = await getComment(commentId);
+    res.status(200).json(comment);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
 });
 
-router.get('/comment/:commentId', async (req, res) => {
-    const { commentId } = req.params;
+router.put("/comment/:commentId", async (req, res) => {
+  const { commentId } = req.params;
+  const { content } = req.body;
 
-    try {
-        const comment = await getComment(commentId);
-        res.status(200).json(comment);
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
+  try {
+    validation.checkString(content, "Content", { min: "2", max: "200" });
+
+    const updatedComment = await updateComment(commentId, { content });
+
+    await client.del(`comments:${updatedComment.postId}`);
+
+    res
+      .status(200)
+      .json({ message: "Comment updated successfully", updatedComment });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
 });
 
-router.put('/comment/:commentId', async (req, res) => {
-    const { commentId } = req.params;
-    const { content } = req.body;
+router.delete("/comment/:commentId", async (req, res) => {
+  const { commentId } = req.params;
 
-    try {
-        validation.checkString(content, 'Content', { min: '2', max: '200' });
+  try {
+    const deletedComment = await removeComment(commentId);
 
-        const updatedComment = await updateComment(commentId, { content });
+    await client.del(`comments:${deletedComment.postId}`);
 
-        await client.del(`comments:${updatedComment.postId}`);
-
-        res.status(200).json({ message: 'Comment updated successfully', updatedComment });
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-router.delete('/comment/:commentId', async (req, res) => {
-    const { commentId } = req.params;
-
-    try {
-        const deletedComment = await removeComment(commentId);
-
-        await client.del(`comments:${deletedComment.postId}`);
-
-        res.status(200).json({ message: 'Comment deleted successfully' });
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
 });
 
 export default router;

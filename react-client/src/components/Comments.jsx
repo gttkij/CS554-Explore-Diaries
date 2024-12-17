@@ -1,43 +1,73 @@
 // rendering individual comments
-import React, { useState } from 'react';
+import { useState, useContext } from "react";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import { AuthContext } from "../context/AuthContext";
 
-function Comments({ comment, onSave, onDelete, onEdit }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedText, setEditedText] = useState(comment.text);
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedText(comment.text);
-  };
-
-  const handleSave = () => {
-    onEdit(comment._id, editedText);
-    setIsEditing(false);
-  };
+function Comments({ comment, onDelete, onEdit }) {
+  const { currentUser } = useContext(AuthContext);
+  const [editOpen, setEditOpen] = useState(false);
 
   const handleDelete = () => {
     onDelete(comment._id);
   };
+  const handleEditOpen = () => {
+    setEditOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditOpen(false);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const formJson = Object.fromEntries(formData.entries());
+
+    const content = formJson.content.trim();
+
+    onEdit(comment._id, content);
+    setEditOpen(false);
+  };
 
   return (
     <div>
-      {isEditing ? (
+      {currentUser && currentUser.uid === comment.fireId && (
         <div>
-          <textarea
-            value={editedText}
-            onChange={(e) => setEditedText(e.target.value)}
-          />
-          <button onClick={handleSave}>Save</button>
-          <button onClick={handleCancel}>Cancel</button>
-        </div>
-      ) : (
-        <div>
-          <p><strong>{comment.username}:</strong> {comment.content}</p>
-          <button onClick={handleEdit}>Edit</button>
+          <button onClick={handleEditOpen}>Edit</button>
+          <Dialog
+            open={editOpen}
+            onClose={handleEditClose}
+            PaperProps={{
+              component: "form",
+              onSubmit: handleSubmit,
+            }}
+          >
+            <DialogTitle>Edit Comment</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Edit your comment here.</DialogContentText>
+              <TextField
+                autoFocus
+                required
+                margin="dense"
+                id="content"
+                name="content"
+                label="Content"
+                fullWidth
+                // value={editedText}
+                variant="standard"
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleEditClose}>Cancel</Button>
+              <Button type="submit">Edit</Button>
+            </DialogActions>
+          </Dialog>
           <button onClick={handleDelete}>Delete</button>
         </div>
       )}

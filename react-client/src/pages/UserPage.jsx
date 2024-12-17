@@ -65,16 +65,7 @@ export function UserPage() {
 
       <div className="post-list">
         {posts.length > 0 ? (
-          posts.map((post) => (
-            <Post
-              title={post.title}
-              content={post.content}
-              location={post.location}
-              category={post.category}
-              id={post._id}
-              key={post._id}
-            />
-          ))
+          posts.map((post) => <Post post={post} />)
         ) : (
           <p>User does not have any posts</p>
         )}
