@@ -11,11 +11,12 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import "../pages/SignIn.css";
 import { MdOutlineUploadFile } from "react-icons/md";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
 import "./Post.css";
 
 const VisuallyHiddenInput = styled("input")({
@@ -41,9 +42,12 @@ const categories = [
 ];
 
 export function AddPost() {
+  const { currentUser } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState("");
   const [error, setError] = useState(false);
+  const [files, setFiles] = useState({});
+  const fireId = currentUser.uid;
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -69,7 +73,12 @@ export function AddPost() {
     let content = formJson.content;
     let location = formJson.location;
     let category = formJson.category;
-    let files = formJson.file;
+
+    console.log(files);
+    let media = Array.from(files);
+
+    let urls = media.map((file) => URL.createObjectURL(file));
+    // console.log(urls);
 
     title = title.trim();
     content = content.trim();
@@ -79,17 +88,18 @@ export function AddPost() {
       return;
     }
 
-    console.log(title, content, location, category, files);
-    const postUrl = "http://localhost:3000/api/posts";
+    // console.log(title, content, location, category, files);
+    const postUrl = "http://localhost:3000/api/posts/addPost";
     try {
       const addPost = await axios.post(
         postUrl,
         {
+          userId: fireId,
           title: title,
           content: content,
           location: location,
           category: category,
-          media: files,
+          media: urls,
         },
         {
           headers: {
@@ -188,7 +198,7 @@ export function AddPost() {
             <VisuallyHiddenInput
               type="file"
               name="file"
-              onChange={(event) => console.log(event.target.files)}
+              onChange={(event) => setFiles(event.target.files)}
               multiple
             />
           </Button>

@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { users } from "../config/mongoCollections.js";
+import { posts, users } from "../config/mongoCollections.js";
 
 export const addUser = async (name, email, fireId) => {
   if (!name || !email || !fireId) {
@@ -47,4 +47,19 @@ export const editUser = async (name, fireId) => {
   if (!updatedUser) throw "Could not update user";
 
   return updatedUser;
+};
+
+export const getPostsByUser = async (fireId) => {
+  const postsCollection = await posts();
+
+  const postsByUser = await postsCollection.find({ userId: fireId });
+  if (!postsByUser || postsByUser.length === 0) throw "Cannot find posts";
+
+  await client.setEx(
+    `postsByUser: ${fireId}`,
+    3600,
+    JSON.stringify(postsByUser)
+  );
+
+  return postsByUser;
 };
