@@ -5,10 +5,16 @@ import dotenv from "dotenv";
 import configRoutes from "./routes/index.js";
 import { dbConnection, closeConnection } from "./config/mongoConnections.js";
 import { Client } from '@elastic/elasticsearch';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
 const app = express();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 app.use(
   cors({
