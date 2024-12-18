@@ -9,6 +9,8 @@ import "./SignIn.css";
 import { useState } from "react";
 import axios, { Axios } from "axios";
 import { useNavigate } from "react-router-dom";
+import { doSocialSignIn } from "../firebase/FirebaseFunctions";
+import { Divider } from "@mui/material";
 
 export function SignUp() {
   const { currentUser } = useContext(AuthContext);
@@ -48,10 +50,16 @@ export function SignUp() {
         }
       );
 
-      // console.log(response);
-
       alert("New User Created");
       navigate("/login");
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const googleLogin = async () => {
+    try {
+      await doSocialSignIn();
     } catch (error) {
       alert(error);
     }
@@ -105,17 +113,18 @@ export function SignUp() {
           </div>
 
           <div>
-            <button>Sign up</button>
-            <button className="google-btn">
-              <FcGoogle size={20} />
-              <span>Sign in with Google</span>
-            </button>
+            <button type="submit">Sign up</button>
           </div>
-
-          <p>
-            Already have an account? <a href="/login">Sign in</a>
-          </p>
         </form>
+        <Divider />
+        <button className="google-btn" onClick={() => googleLogin}>
+          <FcGoogle size={20} />
+          <span>Sign in with Google</span>
+        </button>
+
+        <p>
+          Already have an account? <a href="/login">Sign in</a>
+        </p>
       </div>
     </section>
   );

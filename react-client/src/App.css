@@ -77,3 +77,11 @@ body {
   font-size: 20px;
   color: #666;
 }
+.main-content {
+  margin-top: 70px; /* Push content 70px below the header */
+  padding: 20px; /* Optional padding for spacing */
+}
+
+a {
+  text-decoration: none;
+}

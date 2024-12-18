@@ -88,104 +88,85 @@ const PostPage = () => {
   };
 
   return (
-    <div className="post-page">
-      {/* Header section with Explore Diaries and Sign In/Sign Up buttons */}
-      <div className="header-container">
-        <h1>Explore Diaries</h1>
+    <div className="main-content">
+      <div className="post-page">
+        {/* Post Details */}
+        <h2>{post.title}</h2>
 
-        {/* Conditionally render Sign In/Sign Up buttons or username */}
-        {currentUser ? (
-          <div className="auth-buttons">
-            <button onClick={handleUsernameClick}>
-              {currentUser.displayName || currentUser.email}{" "}
-              {/* Display username */}
-            </button>
-            <SignOut /> {/* Use SignOut component for logging out */}
-          </div>
-        ) : (
-          <div className="auth-buttons">
-            <button onClick={handleSignIn}>Sign In</button>
-            <button onClick={handleSignUp}>Sign Up</button>
-          </div>
-        )}
-      </div>
-
-      {/* Post Details */}
-      <h2>{post.title}</h2>
-
-      {/* Image Slider */}
-      <div className="image-slider">
-        {post.media && post.media.length > 0 ? (
-          <>
-            {post.media[currentImageIndex].endsWith(".mp4") ? (
-              // Video content
-              <video
-                width="100%"
-                controls
-                key={currentImageIndex}
-                className="slider-image"
-              >
-                <source
+        {/* Image Slider */}
+        <div className="image-slider">
+          {post.media && post.media.length > 0 ? (
+            <>
+              {post.media[currentImageIndex].endsWith(".mp4") ? (
+                // Video content
+                <video
+                  width="100%"
+                  controls
+                  key={currentImageIndex}
+                  className="slider-image"
+                >
+                  <source
+                    src={`http://localhost:3000${post.media[currentImageIndex]}`}
+                    type="video/mp4"
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                // Image content
+                <img
                   src={`http://localhost:3000${post.media[currentImageIndex]}`}
-                  type="video/mp4"
+                  alt={post.title}
+                  className="slider-image"
                 />
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              // Image content
-              <img
-                src={`http://localhost:3000${post.media[currentImageIndex]}`}
-                alt={post.title}
-                className="slider-image"
-              />
-            )}
+              )}
 
-            {/* Navigation buttons */}
-            <button className="prev-btn" onClick={goToPreviousImage}>
-              &lt;
+              {/* Navigation buttons */}
+              <button className="prev-btn" onClick={goToPreviousImage}>
+                &lt;
+              </button>
+              <button className="next-btn" onClick={goToNextImage}>
+                &gt;
+              </button>
+            </>
+          ) : (
+            <p>No media available for this post.</p>
+          )}
+        </div>
+
+        <p>{post.content}</p>
+        <p>
+          <strong>Location:</strong> {post.location}
+        </p>
+        <p>
+          <strong>Category:</strong> {post.category}
+        </p>
+
+        <div>
+          <CommentsList postId={postId} />
+        </div>
+
+        {/* Action buttons */}
+        <div className="post-actions">
+          {/* Only show Edit button if the currentUser is the author */}
+          {isAuthor && !isEditModalOpen && (
+            <button className="edit-post-btn" onClick={handleEditPost}>
+              Edit
             </button>
-            <button className="next-btn" onClick={goToNextImage}>
-              &gt;
-            </button>
-          </>
-        ) : (
-          <p>No media available for this post.</p>
-        )}
-      </div>
-
-      <p>{post.content}</p>
-      <p>
-        <strong>Location:</strong> {post.location}
-      </p>
-      <p>
-        <strong>Category:</strong> {post.category}
-      </p>
-
-      <div>
-        <CommentsList postId={postId} />
-      </div>
-
-      {/* Action buttons */}
-      <div className="post-actions">
-        {/* Only show Edit button if the currentUser is the author */}
-        {isAuthor && !isEditModalOpen && (
-          <button className="edit-post-btn" onClick={handleEditPost}>
-            Edit
+          )}
+          <button className="back-home-btn" onClick={() => navigate("/")}>
+            Back to Home Page
           </button>
-        )}
-        <button className="back-home-btn" onClick={() => navigate("/")}>
-          Back to Home Page
-        </button>
-      </div>
+        </div>
 
-      {/* Conditionally render EditPost as a modal */}
-      {isEditModalOpen && (
-        <EditPost
-          postId={postId}
-          postData={post}
-          handleClose={handleCloseEditModal}
-        />
-      )}
+        {/* Conditionally render EditPost as a modal */}
+        {isEditModalOpen && (
+          <EditPost
+            postId={postId}
+            postData={post}
+            handleClose={handleCloseEditModal}
+          />
+        )}
+      </div>
     </div>
   );
 };

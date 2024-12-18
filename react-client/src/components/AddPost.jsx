@@ -111,7 +111,7 @@ export function AddPost() {
 
   return (
     <div>
-      <button variant="outlined" onClick={handleClickOpen}>
+      <button className="add-post-btn" onClick={handleClickOpen}>
         <IoMdAdd /> <span>Add Post</span>
       </button>
       <Dialog

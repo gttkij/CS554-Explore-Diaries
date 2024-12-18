@@ -4,11 +4,12 @@
   border-right: 1px solid #e5e7eb;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: fixed;
-  width: 25%;
+  width: 20%;
   height: 100vh;
-  top: 0;
-  left: 0;
+  /* top: 0; */
+  left: 20px;
   padding: 1.5rem 1rem;
+  border-radius: 25px;
 }
 
 a {
