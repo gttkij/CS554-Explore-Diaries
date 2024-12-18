@@ -22,7 +22,7 @@ router
     try {
       const cachedComments = await client.get(`comments:${postId}`);
       if (cachedComments) {
-        console.log("Comments fetched from Redis cache.");
+        // console.log("Comments fetched from Redis cache.");
         return res.status(200).json(JSON.parse(cachedComments));
       }
 
@@ -50,7 +50,7 @@ router
 
       res.status(201).json({
         message: "Comment created successfully",
-        commentId: result.commentId,
+        comment: result,
       });
     } catch (e) {
       res.status(400).json({ error: e.message });
@@ -98,7 +98,7 @@ router.delete("/comment/:commentId", async (req, res) => {
 
   try {
     const commentToDelete = await getComment(commentId);
-    
+
     if (!commentToDelete) {
       return res.status(404).json({ error: "Comment not found" });
     }
