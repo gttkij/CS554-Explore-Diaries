@@ -1,5 +1,5 @@
 //import routes
-import postsRoutes from "./posts.js";
+import postsRoutes from "./postRoutes.js";
 import authRoutes from "./auth.js";
 
 const constructorMethod = (app) => {
