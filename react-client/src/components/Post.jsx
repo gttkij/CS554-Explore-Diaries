@@ -51,7 +51,6 @@ export function Post({ post }) {
   };
   return (
     <div className="post-card">
-      {/* <img src={post.image} alt={post.title} /> */}
       <div className="post-info">
         <div className="image-slider">
           {post.media && post.media.length > 0 ? (

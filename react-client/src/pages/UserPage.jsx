@@ -55,7 +55,7 @@ export function UserPage() {
   }
   const fireId = currentUser.uid;
   return (
-    <div>
+    <div className="main-content">
       <div>
         <SideBar />
       </div>

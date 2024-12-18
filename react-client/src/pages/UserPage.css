@@ -8,3 +8,10 @@
   max-width: 1200px;
   box-sizing: border-box;
 }
+
+/* Main Content Area */
+.main-container {
+  padding-top: 70px; /* Adjust this based on the header's height */
+  display: flex;
+  flex: 1;
+}

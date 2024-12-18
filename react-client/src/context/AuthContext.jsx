@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/FireBaseConfig";
+import CircularProgress from "@mui/material/CircularProgress";
 export const AuthContext = React.createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -21,7 +22,8 @@ export const AuthProvider = ({ children }) => {
   if (loadingUser) {
     return (
       <div>
-        <h1>Loading....Loading....Loading....Loading....Loading....</h1>
+        {/* <h1>Loading....Loading....Loading....Loading....Loading....</h1> */}
+        <CircularProgress />
       </div>
     );
   }

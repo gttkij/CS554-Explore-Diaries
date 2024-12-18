@@ -90,91 +90,72 @@ const HomePage = () => {
   };
 
   return (
-    <div className="home-page">
-      {/* Header section with Explore Diaries and Sign In/Sign Up buttons */}
-      <div className="header-container">
-        <h1>Explore Diaries</h1>
-
-        {/* Conditionally render Sign In/Sign Up buttons or username */}
-        {currentUser ? (
-          <div className="auth-buttons">
-            <button onClick={handleUsernameClick}>
-              {currentUser.displayName || currentUser.email}{" "}
-              {/* Display username */}
-            </button>
-            <SignOut /> {/* Use SignOut component for logging out */}
-          </div>
-        ) : (
-          <div className="auth-buttons">
-            <button onClick={handleSignIn}>Sign In</button>
-            <button onClick={handleSignUp}>Sign Up</button>
-          </div>
-        )}
-      </div>
-
-      {/* Search Bar */}
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Search blog posts..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <button className="search-button">
-          <img src="./imgs/search.png" alt="Search" />
-        </button>
-      </div>
-
-      {/* Category Filter */}
-      <div className="categories">
-        {categories.map((category) => (
-          <button
-            key={category}
-            className={`category-button ${
-              selectedCategory === category ? "active" : ""
-            }`}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category}
+    <div className="main-content">
+      <div className="home-page">
+        {/* Search Bar */}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search blog posts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button className="search-button">
+            <img src="./imgs/search.png" alt="Search" />
           </button>
-        ))}
-      </div>
+        </div>
 
-      {/* Post List */}
-      <div className="post-list1">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => (
-            <div key={post.id} className="post-card">
-              <img
-                src={
-                  post.media && post.media[0]
-                    ? `http://localhost:3000${post.media[0]}`
-                    : ""
-                }
-                alt={post.title}
-                style={{
-                  display:
-                    post.media && post.media.length > 0 ? "block" : "none",
-                }}
-              />
-              <div className="post-info">
-                <h2>{post.title}</h2>
-                <p>{post.content}</p>
-                <p>
-                  <strong>Location Name:</strong> {post.location}
-                </p>
-                <p>
-                  <strong>Category:</strong> {post.category}
-                </p>
-                <button onClick={() => handleReadMore(post.id)}>
-                  Read more
-                </button>
+        {/* Category Filter */}
+        <div className="categories">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={`category-button ${
+                selectedCategory === category ? "active" : ""
+              }`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Post List */}
+        <div className="post-list1">
+          {filteredPosts.length > 0 ? (
+            filteredPosts.map((post) => (
+              <div key={post.id} className="post-card">
+                <img
+                  src={
+                    post.media && post.media[0]
+                      ? `http://localhost:3000${post.media[0]}`
+                      : ""
+                  }
+                  alt={post.title}
+                  style={{
+                    display:
+                      post.media && post.media.length > 0 ? "block" : "none",
+                  }}
+                />
+                <div className="post-info">
+                  <h2>{post.title}</h2>
+                  <p>{post.content}</p>
+                  <p>
+                    <strong>Location Name:</strong> {post.location}
+                  </p>
+                  <p>
+                    <strong>Category:</strong> {post.category}
+                  </p>
+                  <button onClick={() => handleReadMore(post.id)}>
+                    Read more
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p>No posts found.</p>
-        )}
+            ))
+          ) : (
+            <p>No posts found.</p>
+          )}
+        </div>
       </div>
     </div>
   );

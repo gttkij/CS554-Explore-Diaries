@@ -4,6 +4,14 @@ import CommentForm from "./CommentForm";
 // import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
 import { AuthContext } from "../context/AuthContext";
 import Comments from "./Comments";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Divider,
+} from "@mui/material";
+
 export function CommentsList(props) {
   const [comments, setComments] = useState([]);
   const { currentUser } = useContext(AuthContext);
@@ -93,9 +101,11 @@ export function CommentsList(props) {
   return (
     <div>
       <h4>Comments:</h4>
+      {/* <List> */}
       {comments.map((comment) => (
         <div>
           <Comment key={comment._id} comment={comment} />
+          {/* <ListItem/> */}
           <Comments
             comment={comment}
             onEdit={editComment}
@@ -103,7 +113,7 @@ export function CommentsList(props) {
           />
         </div>
       ))}
-
+      {/* </List> */}
       {currentUser ? (
         <CommentForm
           postId={postId}
