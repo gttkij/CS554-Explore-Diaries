@@ -3,7 +3,6 @@ import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Post } from "../components/Post";
 import "./UserPage.css";
-import axios from "axios";
 import { AddPost } from "../components/AddPost";
 
 export function UserPage() {
@@ -33,16 +32,18 @@ export function UserPage() {
     const url = `http://localhost:3000/api/posts/${id}/delete`;
 
     try {
-      const deletePost = await axios.delete(url, {
+      const response = await fetch(url, {
+        method: "DELETE", // HTTP method
         headers: {
-          accept: "application/json",
+          Accept: "application/json", // Expect JSON response
           "Accept-Language": "en-US,en;q=0.8",
-          "Content-Type": "application/json",
+          "Content-Type": "application/json", // Sending JSON content
         },
       });
-      setPosts(posts.filter((post) => post._id !== id));
-
-      alert("Post Deleted!");
+      if (response.ok) {
+        setPosts(posts.filter((post) => post._id !== id));
+        alert("Post Deleted!");
+      }
     } catch (e) {
       alert(e);
     }

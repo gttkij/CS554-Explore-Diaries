@@ -34,7 +34,7 @@ export function EditPost(props) {
   const [error, setError] = useState(false);
   const [category, setCategory] = useState("");
   const fireId = currentUser.uid;
-
+  const username = currentUser.displayName;
   const id = props.postId;
 
   const handleChange = (event) => {
@@ -51,44 +51,42 @@ export function EditPost(props) {
 
   const handleEdit = async (event) => {
     event.preventDefault();
-    uploadData.append("userId", fireId);
-    uploadData.append("id", id);
+
     const formData = new FormData(event.currentTarget);
-
-    const title = formData.get("title").trim();
-    const content = formData.get("content").trim();
-    const location = formData.get("location").trim();
-    const category = formData.get("category");
-    const files = event.currentTarget.photos.files; // Get file input
-
-    if (title.length === 0 || content.length === 0 || location.length === 0) {
-      setError(true);
-      return;
-    }
-
     const uploadData = new FormData();
-    uploadData.append("userId", fireId);
-    uploadData.append("userName", username);
+    const title = formData.get("title")?.trim() ?? "";
+    const content = formData.get("content")?.trim() ?? "";
+    const location = formData.get("location")?.trim() ?? "";
+    const category = formData.get("category");
     uploadData.append("title", title);
     uploadData.append("content", content);
-    uploadData.append("category", category);
     uploadData.append("location", location);
+    uploadData.append("category", category);
 
-    for (let i = 0; i < files.length && i < 5; i++) {
-      uploadData.append("media", files[i]);
+    const files = event.currentTarget.photos.files;
+
+    if (files.length > 0) {
+      for (let i = 0; i < files.length && i < 5; i++) {
+        uploadData.append("media", files[i]);
+      }
+    } else {
+      uploadData.append("media", []);
     }
-    const postUrl = "http://localhost:3000/api/posts";
+
+    console.log(uploadData);
+    // /:postId/update
+    const postUrl = `http://localhost:3000/api/posts/${id}/update`;
     try {
-      const editPost = await axios.put(postUrl, postInfo, {
-        headers: {
-          accept: "application/json",
-          "Accept-Language": "en-US,en;q=0.8",
-          "Content-Type": "application/json",
-        },
+      const response = await fetch(postUrl, {
+        method: "PUT",
+        body: uploadData,
       });
 
-      setError(false);
-      alert("Post Updated!");
+      if (response.ok) {
+        setError(false);
+        setOpen(false);
+        alert("Post Updated!");
+      }
     } catch (e) {
       alert(e);
     }
@@ -115,7 +113,6 @@ export function EditPost(props) {
           {error && <p className="error-message">Please enter valid input</p>}
           <TextField
             autoFocus
-            required
             margin="dense"
             id="title"
             name="title"
@@ -133,11 +130,9 @@ export function EditPost(props) {
             multiline
             variant="standard"
             fullWidth
-            required
           />
           <TextField
             autoFocus
-            required
             margin="dense"
             id="location"
             name="location"
@@ -155,7 +150,6 @@ export function EditPost(props) {
               value={category}
               name="category"
               onChange={handleChange}
-              required
             >
               {categories.map((category) => (
                 <MenuItem key={category} value={category}>

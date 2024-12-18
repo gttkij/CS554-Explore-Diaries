@@ -42,7 +42,7 @@ export const editUser = async (name, fireId) => {
     { returnDocument: "after" }
   );
 
-  console.log(updatedUser);
+  // console.log(updatedUser);
 
   if (!updatedUser) throw "Could not update user";
 

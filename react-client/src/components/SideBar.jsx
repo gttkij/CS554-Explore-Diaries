@@ -15,7 +15,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SignOut from "./SignOut";
 
@@ -84,18 +83,21 @@ export default function SideBar() {
     try {
       await doChangeName(name);
       const postUrl = "http://localhost:3000/api/auth";
-      const response = await axios.patch(
-        postUrl,
-        { name: name, fireId: fireId },
-        {
-          headers: {
-            accept: "application/json",
-            "Accept-Language": "en-US,en;q=0.8",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setOpen(false);
+
+      const response = await fetch(postUrl, {
+        method: "PATCH",
+        headers: {
+          Accept: "application/json", // Expect JSON response
+          "Content-Type": "application/json", // Send JSON request
+        },
+        body: JSON.stringify({ name: name, fireId: fireId }),
+      });
+
+      if (response.ok) {
+        setOpen(false);
+      } else {
+        alert("cannot change user name ");
+      }
     } catch (e) {
       alert(e);
     }
