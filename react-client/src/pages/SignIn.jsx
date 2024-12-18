@@ -4,6 +4,8 @@ import { AuthContext } from "../context/AuthContext";
 import { doSignInWithEmailAndPassword } from "../firebase/FirebaseFunctions";
 import "./SignIn.css";
 import { useNavigate } from "react-router-dom";
+import { Divider } from "@mui/material";
+import { doSocialSignIn } from "../firebase/FirebaseFunctions";
 
 export function SignIn() {
   const { currentUser } = useContext(AuthContext);
@@ -15,6 +17,14 @@ export function SignIn() {
     try {
       await doSignInWithEmailAndPassword(email.value, password.value);
       navigate("/");
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const googleLogin = async () => {
+    try {
+      await doSocialSignIn();
     } catch (error) {
       alert(error);
     }
@@ -64,18 +74,19 @@ export function SignIn() {
           </div>
           <div>
             <button className="text-medium">Login</button>
-            <button className="google-btn">
-              <FcGoogle size={20} />
-              <span>Sign in with Google</span>
-            </button>
           </div>
-          <p className="text-muted">
-            Don’t have an account yet?{" "}
-            <a className="link-primary" href="/signup">
-              Sign up
-            </a>
-          </p>
         </form>
+        <Divider />
+        <button className="google-btn" onClick={() => googleLogin()}>
+          <FcGoogle size={20} />
+          <span>Sign in with Google</span>
+        </button>
+        <p className="text-muted">
+          Don’t have an account yet?{" "}
+          <a className="link-primary" href="/signup">
+            Sign up
+          </a>
+        </p>
       </div>
     </section>
   );

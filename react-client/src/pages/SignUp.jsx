@@ -60,6 +60,8 @@ export function SignUp() {
   const googleLogin = async () => {
     try {
       await doSocialSignIn();
+      alert("You are logged in!");
+      navigate("/");
     } catch (error) {
       alert(error);
     }
@@ -117,7 +119,7 @@ export function SignUp() {
           </div>
         </form>
         <Divider />
-        <button className="google-btn" onClick={() => googleLogin}>
+        <button className="google-btn" onClick={() => googleLogin()}>
           <FcGoogle size={20} />
           <span>Sign in with Google</span>
         </button>
