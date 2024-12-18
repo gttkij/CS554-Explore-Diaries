@@ -51,7 +51,8 @@ export function CommentsList(props) {
       }
 
       const newComment = await response.json();
-      setComments((prevComments) => [...prevComments, newComment]);
+      console.log(newComment.comment);
+      setComments((prevComments) => [...prevComments, newComment.comment]);
     } catch (error) {
       console.error("Error adding comment", error.message);
       alert("Failed to add comment. Please try again.");
@@ -96,14 +97,12 @@ export function CommentsList(props) {
   return (
     <div>
       <h4>Comments:</h4>
-
       {comments.length > 0 &&
         comments.map((comment) => (
-          <div>
+          <div key={comment._id}>
             <p className="comment-p" key={comment._id}>
               {comment.content}
             </p>
-            {/* <ListItem/> */}
             <Comments
               comment={comment}
               onEdit={editComment}

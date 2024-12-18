@@ -8,7 +8,7 @@ export const createComment = async (postId, userId, userName, content) => {
     commentDate: validation.getFormatedDate(new Date()),
     userName: userName,
     content: content,
-    postId: postId
+    postId: postId,
   };
   try {
     if (
@@ -45,9 +45,13 @@ export const createComment = async (postId, userId, userName, content) => {
       throw "Error: Could not update the post with the new comment ID";
     }
 
+    // return {
+    //   commentSubmittedCompleted: true,
+    //   commentId: insertComment.insertedId.toString(),
+    // };
     return {
-      commentSubmittedCompleted: true,
-      commentId: insertComment.insertedId.toString(),
+      ...newComment,
+      _id: insertComment.insertedId,
     };
   } catch (e) {
     console.error("Error during comment creation:", e);
@@ -129,14 +133,14 @@ export const updateComment = async (commentId, updateObject) => {
 };
 
 export const removeComment = async (commentId) => {
-  try{
+  try {
     commentId = validation.checkId(commentId);
-  } catch(e) {
+  } catch (e) {
     console.error("Error during comment deletion:", e);
     throw e;
   }
 
-  try{
+  try {
     const postCollection = await posts();
 
     const updatePostInfo = await postCollection.updateOne(
@@ -158,7 +162,7 @@ export const removeComment = async (commentId) => {
     }
 
     return { success: true };
-  } catch(e) {
+  } catch (e) {
     console.error("Error during comment deletion:", e);
     throw e;
   }

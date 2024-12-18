@@ -95,15 +95,9 @@ export function AddPost({ setPosts, posts }) {
     setFileError(false);
     try {
       const postUrl = "http://localhost:3000/api/posts/addPost";
-
-      //   const response = await axios.post(postUrl, uploadData, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   });
       const response = await fetch(postUrl, {
         method: "POST",
-        body: uploadData, // FormData handles multipart/form-data automatically
+        body: uploadData,
       });
       console.log(response);
       if (response.ok) {
@@ -116,9 +110,6 @@ export function AddPost({ setPosts, posts }) {
         setOpen(false);
         alert("Post Added!");
       }
-      //   if (response.status === 201) {
-
-      //   }
     } catch (e) {
       alert("Failed to add the post.");
     }
