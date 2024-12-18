@@ -43,6 +43,7 @@ export function AddPost({ setPosts, posts }) {
 
   const handleClose = () => {
     setOpen(false);
+    setCategory("");
   };
 
   const handleChange = (event) => {
@@ -103,7 +104,7 @@ export function AddPost({ setPosts, posts }) {
         setPosts([...posts, data.post]);
         setError(false);
         setOpen(false);
-        alert("Post Added!");
+        // alert("Post Added!");
       }
     } catch (e) {
       alert("Failed to add the post.");
