@@ -1,7 +1,7 @@
 import SideBar from "../components/SideBar";
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { blogPost } from "../components/BlogPost";
+import BlogPost from "../components/BlogPost";
 
 import "./UserPage.css";
 import axios from "axios";
@@ -59,13 +59,13 @@ export function UserPage() {
         ) : (
           <p>User does not have any posts</p>
         )} */}
-        <Post
+        <BlogPost
           title="test"
           description="test"
           location="location"
           category="test"
         />
-        <Post
+        <BlogPost
           title="test"
           description="test"
           location="location"
