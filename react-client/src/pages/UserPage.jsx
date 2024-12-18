@@ -1,7 +1,7 @@
 import SideBar from "../components/SideBar";
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { Post } from "../components/BlogPost";
+import { blogPost } from "../components/BlogPost";
 
 import "./UserPage.css";
 import axios from "axios";
