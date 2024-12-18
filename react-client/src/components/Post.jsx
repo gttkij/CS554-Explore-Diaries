@@ -7,31 +7,15 @@ import { CommentsList } from "./CommentsList";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-export function Post({ post }) {
+export function Post({ post, onDelete }) {
   const { currentUser } = useContext(AuthContext);
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // Store index of current image
 
   const fireId = currentUser.uid;
   const id = post._id;
-  console.log(id);
 
-  const handleDelete = async () => {
-    // '/:postId/delete')
-    const url = `http://localhost:3000/api/posts/${id}/delete`;
-
-    try {
-      const deletePost = await axios.delete(url, {
-        headers: {
-          accept: "application/json",
-          "Accept-Language": "en-US,en;q=0.8",
-          "Content-Type": "application/json",
-        },
-      });
-
-      alert("Post Deleted!");
-    } catch (e) {
-      alert(e);
-    }
+  const handleDelete = () => {
+    onDelete(id);
   };
 
   const goToNextImage = () => {

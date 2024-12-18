@@ -13,3 +13,7 @@
   z-index: 1000;
   height: 70px;
 }
+
+a:hover {
+  text-decoration: none;
+}

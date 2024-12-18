@@ -26,8 +26,9 @@ export default function SideBar() {
   const [open, setOpen] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
   const [error, setError] = useState(false);
-  const navigate = useNavigate();
   const username = currentUser.displayName;
+  const navigate = useNavigate();
+
   const fireId = currentUser.uid;
   const handleClickOpen = () => {
     setOpen(true);

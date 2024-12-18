@@ -9,9 +9,7 @@ import "./SignIn.css";
 import { useState } from "react";
 import axios, { Axios } from "axios";
 import { useNavigate } from "react-router-dom";
-import { doSocialSignIn } from "../firebase/FirebaseFunctions";
 import { Divider } from "@mui/material";
-
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export function SignUp() {

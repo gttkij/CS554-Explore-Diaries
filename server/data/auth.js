@@ -63,9 +63,5 @@ export const getPostsByUser = async (userId) => {
     .find({ userId: userData.fireId })
     .toArray();
 
-  if (!postsByUser) throw "Posts n";
-
-  if (!postsByUser || postsByUser.length === 0) throw "Cannot find posts";
-
   return postsByUser;
 };

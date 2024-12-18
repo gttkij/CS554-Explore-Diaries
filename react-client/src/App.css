@@ -89,3 +89,7 @@ a {
 .error-message {
   color: red;
 }
+
+.comment-p {
+  margin: 0;
+}

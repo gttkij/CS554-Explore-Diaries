@@ -1,19 +1,19 @@
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
-import Button from "@mui/material/Button";
+
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-// import "./Post.css";
+import "./Post.css";
 // import CommentsList from "./components/CommentsList";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import "../pages/SignIn.css";
+// import "../pages/SignIn.css";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
@@ -27,18 +27,6 @@ const categories = [
   "Solo Travel",
   "Family Trips",
 ];
-
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
 
 export function EditPost(props) {
   const { currentUser } = useContext(AuthContext);
@@ -85,42 +73,6 @@ export function EditPost(props) {
     uploadData.append("content", content);
     uploadData.append("category", category);
     uploadData.append("location", location);
-    // if (formData.get("title")) {
-    //   let title = formData.get("title").trim();
-
-    //   if (title.length === 0) {
-    //     setError(true);
-    //     return;
-    //   }
-    //   uploadData.append("title", title);
-    // }
-
-    // if (formData.get("content")) {
-    //   let content = formData.get("content").trim();
-
-    //   if (content.length === 0) {
-    //     setError(true);
-    //     return;
-    //   }
-    //   uploadData.append("content", content);
-    // }
-
-    // if (formData.get("category")) {
-    //   let category = formData.get("category");
-
-    //   uploadData.append("category", category);
-    // }
-
-    // if (formData.get("location")) {
-    //   let location = formData.get("location");
-    //   location = location.trim();
-    //   if (location.length === 0) {
-    //     setError(true);
-    //     return;
-    //   }
-
-    //   uploadData.append("location", location);
-    // }
 
     for (let i = 0; i < files.length && i < 5; i++) {
       uploadData.append("media", files[i]);

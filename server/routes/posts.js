@@ -127,7 +127,9 @@ router
       await esClient.indices.refresh({ index: "posts" });
       await client.del(`userPosts:${userId}`);
       await client.del("posts");
-      res.status(201).json({ message: "Post created successfully" });
+      res
+        .status(201)
+        .json({ message: "Post created successfully", post: newPost });
     } catch (e) {
       res.status(400).json({ error: e.message });
     }
