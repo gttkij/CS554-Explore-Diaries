@@ -8,7 +8,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { AuthContext } from "../context/AuthContext";
-
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 function Comments({ comment, onDelete, onEdit }) {
   const { currentUser } = useContext(AuthContext);
   const [editOpen, setEditOpen] = useState(false);
@@ -30,7 +32,6 @@ function Comments({ comment, onDelete, onEdit }) {
     const formJson = Object.fromEntries(formData.entries());
 
     const content = formJson.content.trim();
-
     onEdit(comment._id, content);
     setEditOpen(false);
   };
@@ -38,8 +39,11 @@ function Comments({ comment, onDelete, onEdit }) {
   return (
     <div>
       {currentUser && currentUser.uid === comment.fireId && (
-        <div>
-          <button onClick={handleEditOpen}>Edit</button>
+        <div className="button-container">
+          {/* <button onClick={handleEditOpen}>Edit</button> */}
+          <IconButton onClick={handleEditOpen}>
+            <EditIcon />
+          </IconButton>
           <Dialog
             open={editOpen}
             onClose={handleEditClose}
@@ -68,7 +72,10 @@ function Comments({ comment, onDelete, onEdit }) {
               <Button type="submit">Edit</Button>
             </DialogActions>
           </Dialog>
-          <button onClick={handleDelete}>Delete</button>
+          {/* <button onClick={handleDelete}>Delete</button> */}
+          <IconButton onClick={handleDelete}>
+            <DeleteIcon />
+          </IconButton>
         </div>
       )}
     </div>

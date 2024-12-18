@@ -37,8 +37,8 @@ router.route("/").patch(async (req, res) => {
   }
 });
 
-router.route("/userId").get(async (req, res) => {
-  const userId = req.query.fireId;
+router.route("/userId/:id").get(async (req, res) => {
+  const userId = req.params.id;
 
   try {
     const cacheKey = `userPosts:${userId}`;

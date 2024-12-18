@@ -18,17 +18,6 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import "./Post.css";
 
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
 const categories = [
   "Adventure",
   "Cultural Experiences",
@@ -40,12 +29,14 @@ const categories = [
   "Family Trips",
 ];
 
-export function AddPost() {
+export function AddPost({ setPosts, posts }) {
   const { currentUser } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState("");
   const [error, setError] = useState(false);
-  //   const [files, setFiles] = useState({});
+  const [contentError, setContentError] = useState(false);
+  const [fileError, setFileError] = useState(false);
+
   const fireId = currentUser.uid;
   const username = currentUser.displayName;
 
@@ -80,6 +71,11 @@ export function AddPost() {
       return;
     }
 
+    if (content.length < 10) {
+      setContentError(true);
+      return;
+    }
+    setContentError(false);
     const uploadData = new FormData();
     uploadData.append("userId", fireId);
     uploadData.append("userName", username);
@@ -87,26 +83,44 @@ export function AddPost() {
     uploadData.append("content", content);
     uploadData.append("category", category);
     uploadData.append("location", location);
+    console.log(files);
 
     for (let i = 0; i < files.length && i < 5; i++) {
+      if (files[i].size > 5 * 1024 * 1024 || files[i] < 1024) {
+        setFileError(true);
+        return;
+      }
       uploadData.append("media", files[i]);
     }
-    console.log(uploadData);
-
+    setFileError(false);
     try {
       const postUrl = "http://localhost:3000/api/posts/addPost";
 
-      const response = await axios.post(postUrl, uploadData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      //   const response = await axios.post(postUrl, uploadData, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   });
+      const response = await fetch(postUrl, {
+        method: "POST",
+        body: uploadData, // FormData handles multipart/form-data automatically
       });
+      console.log(response);
+      if (response.ok) {
+        const data = await response.json(); // The new post from the server
+        // console.log("new post:" + newPost);
+        console.log(data.post);
+        setPosts([...posts, data.post]);
+        console.log(posts);
+        setError(false);
+        setOpen(false);
+        alert("Post Added!");
+      }
+      //   if (response.status === 201) {
 
-      setError(false);
-      setOpen(false);
-      alert("Post Added!");
+      //   }
     } catch (e) {
-      alert(e);
+      alert("Failed to add the post.");
     }
   };
 
@@ -150,6 +164,8 @@ export function AddPost() {
             variant="standard"
             fullWidth
             required
+            helperText="Content must be more than 10 characters"
+            error={contentError}
           />
           <TextField
             autoFocus
@@ -187,6 +203,7 @@ export function AddPost() {
             accept="image/*"
             multiple
           />
+          {fileError && <p className="error-message">File size: 1KB - 5MB</p>}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

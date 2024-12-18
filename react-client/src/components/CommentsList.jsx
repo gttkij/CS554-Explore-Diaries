@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import Comment from "./Comment";
+
 import CommentForm from "./CommentForm";
-// import { AuthContext } from "./AuthContext";  // Assuming you have an AuthContext
 import { AuthContext } from "../context/AuthContext";
 import Comments from "./Comments";
-import {
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  Divider,
-} from "@mui/material";
 
 export function CommentsList(props) {
   const [comments, setComments] = useState([]);
   const { currentUser } = useContext(AuthContext);
-  // const userId = currentUser?.uid;
   const postId = props.postId;
 
   useEffect(() => {
@@ -25,6 +16,11 @@ export function CommentsList(props) {
           `http://localhost:3000/api/comments/${postId}`
         );
         const data = await response.json();
+        // console.log(data);
+        if (!data) {
+          setComments([]);
+          return;
+        }
         setComments(data);
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -97,29 +93,33 @@ export function CommentsList(props) {
     }
   };
 
-  console.log(comments);
   return (
     <div>
       <h4>Comments:</h4>
 
-      {comments.map((comment) => (
-        <div>
-          <Comment key={comment._id} comment={comment} />
-          {/* <ListItem/> */}
-          <Comments
-            comment={comment}
-            onEdit={editComment}
-            onDelete={deleteComment}
-          />
-        </div>
-      ))}
+      {comments.length > 0 &&
+        comments.map((comment) => (
+          <div>
+            <p className="comment-p" key={comment._id}>
+              {comment.content}
+            </p>
+            {/* <ListItem/> */}
+            <Comments
+              comment={comment}
+              onEdit={editComment}
+              onDelete={deleteComment}
+            />
+          </div>
+        ))}
 
       {currentUser ? (
-        <CommentForm
-          postId={postId}
-          onSave={addComment}
-          userId={currentUser.uid}
-        />
+        <div>
+          <CommentForm
+            postId={postId}
+            onSave={addComment}
+            userId={currentUser.uid}
+          />
+        </div>
       ) : (
         <p>Please log in to leave a comment</p>
       )}
