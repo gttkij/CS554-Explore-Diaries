@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../context/AuthContext";
 import { doSignInWithEmailAndPassword } from "../firebase/FirebaseFunctions";
@@ -10,15 +10,17 @@ import { doSocialSignIn } from "../firebase/FirebaseFunctions";
 export function SignIn() {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [error, setError] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     let { email, password } = e.target.elements;
     try {
       await doSignInWithEmailAndPassword(email.value, password.value);
+      setError(false);
       navigate("/");
     } catch (error) {
-      alert(error);
+      setError(true);
     }
   };
 
@@ -45,7 +47,11 @@ export function SignIn() {
     <section>
       <div className="card">
         <p className="text-large">Sign in to your account</p>
-
+        {error && (
+          <p className="error-message">
+            Invalid Credential, Check your password or email
+          </p>
+        )}
         <form onSubmit={handleLogin}>
           <div>
             <label htmlFor="email">Email:</label>

@@ -103,6 +103,7 @@ export function AddPost() {
       });
 
       setError(false);
+      setOpen(false);
       alert("Post Added!");
     } catch (e) {
       alert(e);

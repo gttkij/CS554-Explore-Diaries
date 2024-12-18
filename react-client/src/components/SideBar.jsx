@@ -190,6 +190,7 @@ export default function SideBar() {
                     fullWidth
                     variant="standard"
                     required
+                    type="password"
                   />
                   <TextField
                     autoFocus
@@ -200,6 +201,7 @@ export default function SideBar() {
                     fullWidth
                     variant="standard"
                     required
+                    type="password"
                   />
                   <TextField
                     autoFocus
@@ -208,6 +210,7 @@ export default function SideBar() {
                     name="confirmPw"
                     label="Confirm New Password"
                     fullWidth
+                    type="password"
                     variant="standard"
                     required
                   />

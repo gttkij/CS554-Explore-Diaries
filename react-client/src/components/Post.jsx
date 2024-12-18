@@ -1,13 +1,11 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-// import "./Post.css";
-// import CommentsList from "./components/CommentsList";
 import axios from "axios";
 import "../pages/SignIn.css";
-import { MdOutlineUploadFile } from "react-icons/md";
-import { styled } from "@mui/material/styles";
 import { EditPost } from "./EditPost";
 import { CommentsList } from "./CommentsList";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export function Post({ post }) {
   const { currentUser } = useContext(AuthContext);
@@ -98,9 +96,14 @@ export function Post({ post }) {
         <p>
           <strong>Category:</strong> {post.category}
         </p>
-        <EditPost postId={id} />
+        <div className="button-container">
+          <EditPost postId={id} />
 
-        <button onClick={handleDelete}>Delete</button>
+          <IconButton onClick={handleDelete}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
+
         <CommentsList postId={id} userId={fireId} />
       </div>
     </div>

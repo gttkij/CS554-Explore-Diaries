@@ -13,7 +13,7 @@ export function UserPage() {
   const [posts, setPosts] = useState([]);
 
   const navigate = useNavigate();
-  console.log(posts);
+  // console.log(posts);
 
   // Display user's posts here
   useEffect(() => {
@@ -42,14 +42,12 @@ export function UserPage() {
 
       fetchPosts();
     }
-  }, [currentUser]);
+  }, []);
 
   if (!currentUser) {
     return (
-      <div className="login-container">
+      <div className="main-content">
         <h2>You are not logged in</h2>
-        <a href="/login">Log in</a>
-        <a href="signup">Sign up</a>
       </div>
     );
   }

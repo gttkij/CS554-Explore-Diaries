@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { doSocialSignIn } from "../firebase/FirebaseFunctions";
 import { Divider } from "@mui/material";
 
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+
 export function SignUp() {
   const { currentUser } = useContext(AuthContext);
   const [pwError, setPwError] = useState(false);
@@ -59,7 +61,30 @@ export function SignUp() {
 
   const googleLogin = async () => {
     try {
-      await doSocialSignIn();
+      const auth = getAuth();
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const currentUser = result.user;
+      if (!currentUser) {
+        throw new Error("Google sign-in failed. User not found.");
+      }
+
+      const fireId = currentUser.uid;
+      const email = currentUser.email;
+      const displayName = currentUser.displayName;
+      const postUrl = "http://localhost:3000/api/auth/signup";
+      const response = await axios.post(
+        postUrl,
+        { name: displayName, email: email, fireId: fireId },
+        {
+          headers: {
+            accept: "application/json",
+            "Accept-Language": "en-US,en;q=0.8",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       alert("You are logged in!");
       navigate("/");
     } catch (error) {
