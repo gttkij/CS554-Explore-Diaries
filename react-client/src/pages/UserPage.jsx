@@ -72,7 +72,10 @@ export function UserPage() {
             <Post onDelete={handleDelete} key={post._id} post={post} />
           ))
         ) : (
-          <p>User does not have any posts</p>
+          <div>
+            <p>You don't have any posts yet.</p>
+            <p>Let't create one!</p>
+          </div>
         )}
       </div>
     </div>

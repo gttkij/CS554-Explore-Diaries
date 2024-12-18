@@ -26,7 +26,8 @@ function CommentForm({ postId, onSave, userId }) {
         placeholder="Your name"
         required
       />
-      <textarea
+      <input
+        type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Write a comment..."
