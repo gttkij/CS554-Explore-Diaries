@@ -7,7 +7,7 @@ import {
 } from "../firebase/FirebaseFunctions";
 import "./SignIn.css";
 import { useState } from "react";
-import axios, { Axios } from "axios";
+
 import { useNavigate } from "react-router-dom";
 import { Divider } from "@mui/material";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -38,20 +38,26 @@ export function SignUp() {
       const userEmail = email.value;
       const fireId = await getUid();
 
-      const response = await axios.post(
-        postUrl,
-        { name: username, email: userEmail, fireId: fireId },
-        {
-          headers: {
-            accept: "application/json",
-            "Accept-Language": "en-US,en;q=0.8",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(postUrl, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-Language": "en-US,en;q=0.8",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: username,
+          email: userEmail,
+          fireId: fireId,
+        }), // Convert payload to JSON string
+      });
 
-      alert("New User Created");
-      navigate("/login");
+      if (!response.ok) {
+        alert("Cannot create new user");
+      } else {
+        alert("New User Created");
+        navigate("/");
+      }
     } catch (error) {
       alert(error);
     }
@@ -71,20 +77,26 @@ export function SignUp() {
       const email = currentUser.email;
       const displayName = currentUser.displayName;
       const postUrl = "http://localhost:3000/api/auth/signup";
-      const response = await axios.post(
-        postUrl,
-        { name: displayName, email: email, fireId: fireId },
-        {
-          headers: {
-            accept: "application/json",
-            "Accept-Language": "en-US,en;q=0.8",
-            "Content-Type": "application/json",
-          },
-        }
-      );
 
-      alert("You are logged in!");
-      navigate("/");
+      const response = await fetch(postUrl, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-Language": "en-US,en;q=0.8",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: displayName,
+          email: email,
+          fireId: fireId,
+        }), // Convert payload to JSON string
+      });
+      if (response.ok) {
+        alert("You are logged in!");
+        navigate("/");
+      } else {
+        alert("Cannot log in with Google");
+      }
     } catch (error) {
       alert(error);
     }

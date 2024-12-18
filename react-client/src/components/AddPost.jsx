@@ -12,9 +12,6 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useState, useContext } from "react";
 import "../pages/SignIn.css";
-import { MdOutlineUploadFile } from "react-icons/md";
-import { styled } from "@mui/material/styles";
-import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import "./Post.css";
 
@@ -99,13 +96,11 @@ export function AddPost({ setPosts, posts }) {
         method: "POST",
         body: uploadData,
       });
-      console.log(response);
+
       if (response.ok) {
-        const data = await response.json(); // The new post from the server
-        // console.log("new post:" + newPost);
-        console.log(data.post);
+        const data = await response.json();
+
         setPosts([...posts, data.post]);
-        console.log(posts);
         setError(false);
         setOpen(false);
         alert("Post Added!");

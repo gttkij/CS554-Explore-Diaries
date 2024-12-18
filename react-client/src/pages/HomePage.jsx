@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // Import AuthContext
-import SignOut from "../components/SignOut"; // Import SignOut component
+import { AuthContext } from "../context/AuthContext";
 import "./HomePage.css";
-// import { CommentsList } from "../components/CommentsList";
-import { CommentsList } from "../components/CommentsList";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([]);

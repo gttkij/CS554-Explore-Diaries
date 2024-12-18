@@ -195,7 +195,9 @@ router
       });
 
       const cacheKey = `post:${postId}`;
+      const userId = post.userId;
       await client.del(cacheKey);
+      await client.del(`userPosts:${userId}`);
       await client.set(cacheKey, JSON.stringify(updatedPost));
 
       res.status(200).json({ postUpdated: true, postId: updatedPost.postId });
