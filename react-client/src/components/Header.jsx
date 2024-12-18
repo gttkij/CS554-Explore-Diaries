@@ -1,5 +1,5 @@
 import "./Header.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
 import SignOut from "./SignOut";
@@ -20,14 +20,6 @@ export function Header() {
   };
   return (
     <header className="header">
-      {/* Right: User Avatar */}
-      {/* <div className="header-right">
-        <img
-          src="https://via.placeholder.com/40" // Replace with user avatar URL
-          alt="User Avatar"
-          className="user-avatar"
-        />
-      </div> */}
       <div className="header-container">
         <a href="/">
           <h1>Explore Diaries</h1>

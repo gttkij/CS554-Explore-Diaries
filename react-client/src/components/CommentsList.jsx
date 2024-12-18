@@ -101,7 +101,7 @@ export function CommentsList(props) {
   return (
     <div>
       <h4>Comments:</h4>
-      {/* <List> */}
+
       {comments.map((comment) => (
         <div>
           <Comment key={comment._id} comment={comment} />
@@ -113,7 +113,7 @@ export function CommentsList(props) {
           />
         </div>
       ))}
-      {/* </List> */}
+
       {currentUser ? (
         <CommentForm
           postId={postId}

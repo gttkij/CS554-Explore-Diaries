@@ -14,9 +14,9 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import "../pages/SignIn.css";
-import { MdOutlineUploadFile } from "react-icons/md";
+import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
-
+import EditIcon from "@mui/icons-material/Edit";
 const categories = [
   "Adventure",
   "Cultural Experiences",
@@ -144,7 +144,10 @@ export function EditPost(props) {
 
   return (
     <div>
-      <button onClick={handleClickOpen}>Edit</button>
+      {/* <button onClick={handleClickOpen}>Edit</button> */}
+      <IconButton onClick={handleClickOpen}>
+        <EditIcon />
+      </IconButton>
 
       <Dialog
         open={open}
