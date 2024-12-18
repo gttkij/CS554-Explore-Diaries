@@ -18,7 +18,7 @@ async function checkIndexExists() {
 async function createIndex() {
   const indexExists = await checkIndexExists();
   if (!indexExists) {
-    await client.indices.create({
+    await esClient.indices.create({
       index: indexName,
       body: {
         settings: {
